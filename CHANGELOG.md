@@ -9,5 +9,6 @@
 - Acceptance tests AT-05 to AT-17 plus section 4, 11 and 18 unit tests. Sandbox run: 48 passed, 3 skipped
   (AT-14 needs the dataset's label files).
 - After an independent code audit: added `motion.motion_invalid` (C0c) and a test that code constants equal the YAML.
+- Pre-Kaggle audit (2026-10-04): isolated, checked package install in the Kaggle notebook; location-independent `layout.py` path; wider Stage 1 report hashes; `HASHES_NOTE.md`.
 - Not yet implemented: Stage 2 (detector, coreset, scoring, validation constants, tau_r run) and the Stage 3
   runner and report.

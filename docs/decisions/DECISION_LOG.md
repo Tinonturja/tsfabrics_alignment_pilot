@@ -1,7 +1,7 @@
 # Decision log
 
 Each entry says what was decided, when, on what evidence, and whether any TSFabrics test-scenario detector output
-existed at the time. Up to and including DL-0009, none did: no anomaly map, score or metric has been computed on any
+existed at the time. Up to and including DL-0011, none did: no anomaly map, score or metric has been computed on any
 frame of any scenario.
 
 | ID | Date (UTC) | Decision | Evidence | Test outputs seen? |
@@ -16,6 +16,7 @@ frame of any scenario.
 | DL-0008 | 2026-09-30 | Literature audit: ST-PaveCLIP closest neighbour (class B); controls and combination class D; MAP-VD class E | `docs/literature/` | No |
 | DL-0009 | 2026-10-03 | Stage 1 implementation choices where the text is silent (below); Stage 1 suite run in the sandbox: 48 passed, 3 skipped (AT-14 needs the dataset) | `audit/stage1_report_sandbox.json` | No |
 | DL-0010 | 2026-10-03 | Independent code audit against the specification: no defect changing a decision quantity found. Two gaps fixed: C0c (motion-invalid) had no function, now `motion.motion_invalid` with a strict integer 5% test; constants written in code are now checked against the YAML by a test | Independent audit notes | No |
+| DL-0011 | 2026-10-04 | Pre-Kaggle repository audit. Plumbing fixes only, no methodological change: (1) Kaggle notebook installs the pinned packages into an isolated folder, checks the install and the imported numpy version, and refuses to run if the repository or dataset is ambiguous or missing; (2) `layout.py` (reference and calibration) locates the frozen CSV from its own folder name instead of a path-substring test; (3) the Stage 1 report hashes reference, calibration, scripts and the notebook too, plus one fingerprint over all hashed files; (4) `calibration/c0b/HASHES_NOTE.md` explains the single expected `HASHES.txt` mismatch (`layout.py`) | Fresh clone in a clean environment: 50 passed, 3 skipped (AT-14) | No |
 
 ## DL-0009: implementation choices (none changes a frozen rule)
 

@@ -1,7 +1,8 @@
 """Real pilot pass layout (frozen CSV) -> concatenated timeline for metric audits. Audit only."""
 import numpy as np, pandas as pd
 import os as _os
-_CSV=_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), *(['..']*(2 if 'calibration' in _os.path.abspath(__file__) else 1)), 'data','frozen','tsfabrics_pilot_passes_and_candidate_tracks.csv')
+_HERE=_os.path.dirname(_os.path.abspath(__file__))
+_CSV=_os.path.join(_HERE, *(['..']*(2 if _os.path.basename(_HERE)=='c0b' else 1)), 'data','frozen','tsfabrics_pilot_passes_and_candidate_tracks.csv')
 P=pd.read_csv(_CSV)  # repo-relative path (the only change from the frozen copy, 2026-10-03)
 SC={'A-G1':[('T1_S148_I108_1',3262,-113),('T1_S148_I108_2',4804,-118),('T1_S174_I108_1',617,-127),('T1_S174_I111_1',18630,-116),('T1_S177_I108_1',16431,-118)],
     'A-G4':[('T1_S478_I118_1',3247,-39),('T1_S478_I118_2',3204,-39),('T1_S555_I117_1',18465,-38)]}

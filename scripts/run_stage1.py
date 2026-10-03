@@ -11,6 +11,7 @@ was used; INCOMPLETE is never the Stage 1 record. Exit code 0 for PASS, or INCOM
 import argparse
 import datetime
 import glob
+import hashlib
 import json
 import os
 import subprocess
@@ -76,11 +77,12 @@ def main():
         result = "PASS"
     ok = result == "PASS" or (result == "INCOMPLETE" and a.allow_no_dataset and not a.fast)
     cfg = C.load()
-    hashed = sorted(glob.glob(os.path.join(REPO, "src", "tsfpilot", "*.py")) +
-                    glob.glob(os.path.join(REPO, "tests", "*.py")) + glob.glob(os.path.join(REPO, "tests", "fixtures", "*.py")) +
-                    glob.glob(os.path.join(REPO, "data", "frozen", "*")) +
-                    [os.path.join(REPO, p) for p in ("PREREGISTRATION.md", "PREREGISTRATION_AMENDMENT_v1.2.1.md",
-                                                     "configs/pilot_v1_2_1.yaml")])
+    globs = ["src/tsfpilot/*.py", "tests/*.py", "tests/fixtures/*.py", "data/frozen/*", "reference/*.py",
+             "reference/README.txt", "calibration/c0b/*.py", "calibration/c0b/*.md", "calibration/c0b/*.sha256",
+             "calibration/c0b/HASHES.txt", "calibration/c0b/results/*.csv", "scripts/*.py", "notebooks/*.ipynb"]
+    hashed = sorted({p for g in globs for p in glob.glob(os.path.join(REPO, g))} |
+                    {os.path.join(REPO, p) for p in ("PREREGISTRATION.md", "PREREGISTRATION_AMENDMENT_v1.2.1.md",
+                                                     "configs/pilot_v1_2_1.yaml", "requirements.txt", "pyproject.toml")})
     report = {
         "stage": 1, "spec": "Research Gate v1.2 + v1.2.1", "started_utc": t0.isoformat(),
         "finished_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
@@ -91,8 +93,11 @@ def main():
         "dataset_root_found": bool(os.environ.get("TSF_ROOT")) and not dataset_skips,
         "tests": tests, "config_sha256": cfg["_sha256"],
         "hashes": {os.path.relpath(p, REPO): C.file_sha256(p) for p in hashed},
+        "files_fingerprint": None,
         "git": git_state(), "environment": environment(),
     }
+    report["files_fingerprint"] = hashlib.sha256(
+        "".join(f"{k}\t{v}\n" for k, v in sorted(report["hashes"].items())).encode()).hexdigest()
     bank_csv = maybe_write_bank()
     if bank_csv:
         report["bank_frames_csv"] = {"path": os.path.relpath(bank_csv, REPO), "sha256": C.file_sha256(bank_csv)}

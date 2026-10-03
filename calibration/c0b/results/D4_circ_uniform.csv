@@ -1,0 +1,5 @@
+tag,scheme,obs,fold,family,n,not_collapsed,rate,cp_lo,cp_hi,verdict,median_k,frac_k200,seconds
+D4_circ_uniform,uniform,zero,A-G1,C3_circ0.99,2000,96,0.048,0.039050337055576895,0.05830249234114568,PASS,95.5,0.006,192.9
+D4_circ_uniform,uniform,zero,A-G1,C4_circ0.999,2000,89,0.0445,0.035886944504531025,0.05447801135748333,PASS,102.0,0.023,305.0
+D4_circ_uniform,uniform,zero,A-G4,C3_circ0.99,2000,92,0.046,0.037240902034369,0.056118830543436325,PASS,101.0,0.0075,102.7
+D4_circ_uniform,uniform,zero,A-G4,C4_circ0.999,2000,90,0.045,0.03633795731126182,0.05502525284745086,PASS,98.0,0.0055,159.2

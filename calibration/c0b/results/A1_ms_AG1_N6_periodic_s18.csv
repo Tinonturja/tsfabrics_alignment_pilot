@@ -1,0 +1,2 @@
+tag,scheme,obs,fold,family,n,not_collapsed,rate,cp_lo,cp_hi,verdict,median_k,frac_k200,seconds
+A1_ms_AG1_N6_periodic_s18,uniform,zero,A-G1,N6_periodic,200,10,0.05,0.024234165472108552,0.09002753770135137,INDETERMINATE,101.5,0.0,3.2

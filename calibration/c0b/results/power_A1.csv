@@ -1,0 +1,5 @@
+tag,scheme,obs,fold,family,n,not_collapsed,rate,cp_lo,cp_hi,verdict,median_k,frac_k200,seconds
+power_A1,uniform,zero,A-G1,S_0.25,500,318,0.636,0.5921202516366364,0.6782610738896278,FAIL,4.0,0.0,10.4
+power_A1,uniform,zero,A-G1,S_0.5,500,497,0.994,0.9825663262740865,0.9987609424564593,FAIL,0.0,0.0,10.5
+power_A1,uniform,zero,A-G4,S_0.25,500,396,0.792,0.7537447673454118,0.8267608401098797,FAIL,1.0,0.0,5.8
+power_A1,uniform,zero,A-G4,S_0.5,500,500,1.0,0.9926493899480923,1.0,FAIL,0.0,0.0,5.9

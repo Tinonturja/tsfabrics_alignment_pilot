@@ -1,0 +1,3 @@
+tag,scheme,obs,fold,family,n,not_collapsed,rate,cp_lo,cp_hi,verdict,median_k,frac_k200,seconds
+primary_AG1_N1toN4_record,v12,zero,A-G1,N3_ar0.99,2000,205,0.1025,0.08954735419896905,0.11663068395544834,FAIL,102.0,0.024,152.0
+primary_AG1_N1toN4_record,v12,zero,A-G1,N4_drift,2000,344,0.172,0.15570095240213455,0.18926656298789865,FAIL,117.0,0.0745,229.2

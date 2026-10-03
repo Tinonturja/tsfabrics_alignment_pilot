@@ -1,0 +1,4 @@
+tag,scheme,obs,fold,family,n,not_collapsed,rate,cp_lo,cp_hi,verdict,median_k,frac_k200,seconds
+primary_AG4_doubled,v12,zero,A-G4,N6_periodic,4000,297,0.07425,0.06631344974079206,0.08281491816834763,INDETERMINATE,101.0,0.008,43.2
+primary_AG4_doubled,v12,zero,A-G4,N7_trend,4000,301,0.07525,0.06726261601330547,0.08386420050468718,INDETERMINATE,124.0,0.05475,54.4
+primary_AG4_doubled,v12,zero,A-G4,N8_composite,4000,281,0.07025,0.06252116821234811,0.07861342543564633,INDETERMINATE,98.0,0.018,94.4

@@ -1,0 +1,2 @@
+tag,scheme,obs,fold,family,n,not_collapsed,rate,cp_lo,cp_hi,verdict,median_k,frac_k200,seconds
+A1_ms_AG4_N8_composite_s21,uniform,zero,A-G4,N8_composite,200,7,0.035,0.014185525898419246,0.0707809983509772,PASS,95.0,0.0,4.4

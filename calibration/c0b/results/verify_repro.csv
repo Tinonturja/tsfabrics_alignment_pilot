@@ -1,0 +1,2 @@
+tag,scheme,obs,fold,family,n,not_collapsed,rate,cp_lo,cp_hi,verdict,median_k,frac_k200,seconds
+verify_repro,v12,zero,A-G1,N1_iid,2000,95,0.0475,0.03859754632442701,0.05775700265037019,PASS,101.0,0.006,18.0

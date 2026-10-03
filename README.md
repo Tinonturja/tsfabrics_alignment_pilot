@@ -13,7 +13,7 @@ it is not in the code.
 
 | Stage | What | Status |
 |---|---|---|
-| Stage 1 | Synthetic data, reference scripts, frozen CSVs, label files. CPU. No images | Implemented. Sandbox: 48 passed, 3 skipped (AT-14 needs the label files). Run on Kaggle to complete |
+| Stage 1 | Synthetic data, reference scripts, frozen CSVs, label files. CPU. No images | **PASS** on Kaggle, 2026-10-04: 53 passed, 0 failed, 0 skipped (record in `audit/stage1_kaggle/`, decision log DL-0012) |
 | Stage 2 | Bank and validation frames only: features, coresets, validation constants, tau_r. GPU | Not yet implemented |
 | Stage 3 | One locked run on the test folds | Not yet implemented |
 

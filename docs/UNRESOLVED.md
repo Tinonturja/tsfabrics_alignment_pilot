@@ -13,4 +13,4 @@ Reviewed at every stage gate. Nothing leaves this list without a dated note sayi
 | U7 | Has anyone published normal-only results on TSFabrics? | Time-sensitive novelty | Re-check citations before submission | Open |
 | U8 | Will the few-cluster bootstrap CI matter for C3? | Declared limitation | Nothing before Stage 3 | Declared |
 | U-I1 | Section 7: status of frames with no estimate (v1.2 text vs v1.1 pseudo-code E2) | Specification ambiguity | Followed the v1.2 text (DL-0009 I-1); cannot affect the pilot test scenarios. Stage 2 counts constant-crop frames on training-side scenarios; the Stage 3 runner logs the count on test scenarios (a count, never a score) | Open (Stage 2 check) |
-| U-I2 | Kaggle numpy version vs the AT-15 fixture (numpy 2.4.4) | PCG64 `integers` output must match the fixture | Run AT-15 on Kaggle; if it fails, pin numpy 2.4.4 | Open (Stage 1 on Kaggle) |
+| U-I2 | Kaggle numpy version vs the AT-15 fixture (numpy 2.4.4) | PCG64 `integers` output must match the fixture | Closed 2026-10-04: the Kaggle Stage 1 run installed numpy 2.4.4 and AT-15 passed (DL-0012) | Closed |

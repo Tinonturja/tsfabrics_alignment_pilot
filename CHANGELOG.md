@@ -8,5 +8,6 @@
   variants, passes, events, metrics, chance (v1.2.1), bootstrap, decision, decomposition, manifest.
 - Acceptance tests AT-05 to AT-17 plus section 4, 11 and 18 unit tests. Sandbox run: 48 passed, 3 skipped
   (AT-14 needs the dataset's label files).
+- After an independent code audit: added `motion.motion_invalid` (C0c) and a test that code constants equal the YAML.
 - Not yet implemented: Stage 2 (detector, coreset, scoring, validation constants, tau_r run) and the Stage 3
   runner and report.

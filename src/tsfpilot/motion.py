@@ -136,6 +136,18 @@ def oracle_dx(dx, status, mcfg):
     return out
 
 
+def motion_invalid(tau, mu_flags_by_scenario, max_fraction=0.05):
+    """C0c (section 7 item 8, section 20): tau_r undefined, or more than 5% of the fold's test frames are
+    motion-unknown. mu_flags_by_scenario: list of bool arrays (motion-unknown per frame) over all test scenarios.
+    Strict integer test: invalid iff 100 x #unknown > 5 x #frames (exactly 5% is valid)."""
+    if tau is None:
+        return True
+    n = sum(len(m) for m in mu_flags_by_scenario)
+    bad = sum(int(np.sum(m)) for m in mu_flags_by_scenario)
+    num, den = round(max_fraction * 100), 100            # 0.05 -> 5/100, kept as integers
+    return den * bad > num * n
+
+
 def motion_unknown(known, K):
     """Section 7 item 7: frame t (1-based) is motion-unknown if any j in [t - K_t + 2, t] is not known.
     known: bool per frame; K: int per frame. Returns bool array."""

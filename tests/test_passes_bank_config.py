@@ -72,6 +72,21 @@ def test_bank_eligibility_capacity_and_selection():
     assert select(C_, 4) == [C_[12], C_[37], C_[62], C_[87]]         # floor((j + 0.5) c / q)
 
 
+def test_code_constants_equal_config():
+    """Constants written in code must equal the frozen YAML, so an edited config cannot silently diverge."""
+    from decimal import Decimal
+    from tsfpilot import decision, events
+    cr, m, e = CFG["criteria"], CFG["metrics"], CFG["events"]
+    assert decision.BAND == Decimal(cr["band"]) and decision.C1_PASS == Decimal(cr["c1_pass"])
+    assert decision.C1_FAIL == Decimal(cr["c1_fail"]) and decision.C2_MIN == Decimal(cr["c2_min"])
+    assert decision.S_PASS == Decimal(cr["c4_pass_share"]) and decision.S_FAIL == Decimal(cr["c4_fail_share"])
+    assert (cr["c0a_num"], cr["c0a_den"]) == (19, 20)                # metrics.c0a_saturated: 20 x det >= 19 x n
+    assert events.GAP == e["merge_gap"] and events.CAP == e["duration_cap"] and e["fa_per"] == 1000
+    assert (m["p1_recall_num"], m["p1_recall_den"], m["p1_cap"], m["p2_fa"], m["p3_fmax"]) == (4, 5, 50, 2, 10)
+    assert CFG["motion"]["cell_px"] == 8 and CFG["motion"]["tau_r_min_consistent"] == 0.95
+    assert CFG["chance"]["n_shifts"] == 200 and CFG["chance"]["collapse_k"] == 10
+
+
 def test_config_integrity(tmp_path):
     assert CFG["spec"]["preregistration_sha256"] == C.file_sha256(os.path.join(REPO, "PREREGISTRATION.md"))
     assert CFG["spec"]["amendment_v1_2_1_sha256"] == C.file_sha256(

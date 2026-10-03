@@ -14,7 +14,8 @@ frame of any scenario.
 | DL-0006 | 2026-09-30 | Candidate A1 (uniform offsets) passes 18 of 18 cells; pooled 4.76%; residual 6.2% under a strong periodic null | Synthetic only | No |
 | DL-0007 | 2026-10-01 02:30 | **Amendment v1.2.1 adopted** by Tinon (`PREREGISTRATION_AMENDMENT_v1.2.1.md`, `4118fc4b...a1039`) | Calibration report | No |
 | DL-0008 | 2026-09-30 | Literature audit: ST-PaveCLIP closest neighbour (class B); controls and combination class D; MAP-VD class E | `docs/literature/` | No |
-| DL-0009 | 2026-10-03 | Stage 1 implementation choices where the text is silent (below); Stage 1 suite run in the sandbox: 48 passed, 3 skipped (AT-14 needs the dataset) | `audit/stage1_report.json` | No |
+| DL-0009 | 2026-10-03 | Stage 1 implementation choices where the text is silent (below); Stage 1 suite run in the sandbox: 48 passed, 3 skipped (AT-14 needs the dataset) | `audit/stage1_report_sandbox.json` | No |
+| DL-0010 | 2026-10-03 | Independent code audit against the specification: no defect changing a decision quantity found. Two gaps fixed: C0c (motion-invalid) had no function, now `motion.motion_invalid` with a strict integer 5% test; constants written in code are now checked against the YAML by a test | Independent audit notes | No |
 
 ## DL-0009: implementation choices (none changes a frozen rule)
 

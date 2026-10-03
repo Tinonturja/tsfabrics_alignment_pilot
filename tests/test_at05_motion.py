@@ -53,6 +53,15 @@ def test_tau_r_rule():
     assert tau_r([(dx[:900], dy[:900], r[:900], has[:900])], mcfg) is None      # fewer than 1000 pairs
 
 
+def test_c0c_motion_invalid_rule():
+    from tsfpilot.motion import motion_invalid
+    ok = [np.zeros(380, bool), np.r_[np.ones(20, bool)]]            # 20 of 400 = exactly 5%: valid
+    assert not motion_invalid(0.3, ok)
+    bad = [np.zeros(379, bool), np.ones(21, bool)]                  # 21 of 400 = 5.25%: invalid
+    assert motion_invalid(0.3, bad)
+    assert motion_invalid(None, ok)                                 # tau_r undefined
+
+
 def test_oracle_dx_needs_five_values():
     mcfg = CFG["motion"]
     n = 50

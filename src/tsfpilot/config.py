@@ -1,4 +1,6 @@
-"""Configuration loader (all sections). Refuses unknown or missing keys so no constant can hide in code."""
+"""Configuration loader (all sections). Refuses unknown or missing keys.
+Some frozen constants are also written in code (decision thresholds, the event gap and cap, integer metric tests);
+tests/test_passes_bank_config.py::test_code_constants_equal_config fails if the YAML and the code ever disagree."""
 import hashlib
 import os
 

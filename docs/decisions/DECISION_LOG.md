@@ -31,3 +31,7 @@ frame of any scenario.
 | I-8 | AT-15 | Added a regression test: the pipeline's k equals the calibration kernel's k on all 200 traces of the amendment's fixture cell, and 6 of 200 are not collapsed | Ties the pipeline to the calibration evidence | No |
 | I-9 | `reference/layout.py`, `calibration/c0b/layout.py` | The absolute CSV path was replaced by a repository-relative path | Portability; logic unchanged | No |
 | I-10 | Tests only | Stage 1 builds the fold layouts from the passes CSV with synthetic labels (label 4 inside each pass, 1 elsewhere) and scenario-median k | Gives the same N_f as the real labels; AT-14 checks the assumption on the real label files | No (tests only) |
+
+## Note on commit identifiers
+
+On 2026-10-03, before the first push, the local history was rewritten to remove commit-message trailers and one private detail from the literature notes. Commit `e42998c` named in `audit/stage1_report_sandbox.json` is the pre-rewrite identifier of `d3466f6` (same code). The sandbox report is not the Stage 1 record; the Kaggle run is.

@@ -1,0 +1,156 @@
+# Every constant of Research Gate v1.2 + amendment v1.2.1. Section numbers refer to PREREGISTRATION.md.
+# config.py refuses unknown or missing keys. Do not edit after the Stage 2 freeze.
+spec:
+  preregistration_sha256: 182df443b29e8b5ee1922de61219871c1a6e052f538fd8ef1c4b4466db4a70dd
+  amendment_v1_2_1_sha256: 4118fc4b5761f38dab1db4e1283e52ad1ddc10dd4c6a5ebcdf5557eb8e4a1039
+
+data:                      # section 3; dataset root is given on the command line, not here
+  frame_width: 800
+  frame_height: 640
+  normal_labels: [1, 2]
+  cutline_anchor_labels: [2, 5]
+  passes_csv: data/frozen/tsfabrics_pilot_passes_and_candidate_tracks.csv
+  clusters_csv: data/frozen/tsfabrics_condition_clusters.csv
+  bank_audit_csv: data/frozen/tsfabrics_pilot_bank_audit.csv
+  forensic_summary_csv: data/frozen/forensic_scenario_summary.csv
+  label_override:          # forensic audit: frames labelled 1 that carry a defect mask (second pass of a label-7 defect)
+    T1_S164_I192_1: [258, 267]
+
+periods:                   # section 3, frames per rotation (cutline recurrence)
+  T1_S148_I108_1: 153
+  T1_S148_I108_2: 156
+  T1_S174_I108_1: 59
+  T1_S174_I111_1: 176
+  T1_S177_I108_1: 176
+  T1_S478_I118_1: 477
+  T1_S478_I118_2: 487
+  T1_S555_I117_1: 556
+  T1_S164_I199_1: 171
+
+folds:                     # section 4
+  A-G1:
+    index: 0
+    test: [T1_S148_I108_1, T1_S148_I108_2, T1_S174_I108_1, T1_S174_I111_1, T1_S177_I108_1]
+    expected: {frames: 43744, passes: 162, tracks: 34}
+    validation: {scenario: T1_S164_I199_1, first: 1, last: 1212}
+    bank_groups:
+      G2: [T1_S164_I192_1, T1_S164_I193_1]
+      G3: [T1_S164_I36_1, T1_S179_I35_1]
+      G4: [T1_S478_I118_1, T1_S478_I118_2, T1_S555_I117_1]
+    bank_quota: {T1_S164_I192_1: 50, T1_S164_I193_1: 50, T1_S164_I36_1: 50, T1_S179_I35_1: 50,
+                 T1_S478_I118_1: 34, T1_S478_I118_2: 33, T1_S555_I117_1: 33}
+    tau_r_groups: [G2, G3, G4]
+  A-G4:
+    index: 1
+    test: [T1_S478_I118_1, T1_S478_I118_2, T1_S555_I117_1]
+    expected: {frames: 24916, passes: 99, tracks: 36}
+    validation: {scenario: T1_S164_I199_1, first: 1, last: 1212}
+    bank_groups:
+      G1: [T1_S148_I108_1, T1_S148_I108_2, T1_S174_I108_1, T1_S174_I111_1]
+      G2: [T1_S164_I192_1, T1_S164_I193_1]
+      G3: [T1_S164_I36_1, T1_S179_I35_1]
+    bank_quota: {T1_S148_I108_1: 31, T1_S148_I108_2: 31, T1_S174_I108_1: 7, T1_S174_I111_1: 31,
+                 T1_S164_I192_1: 50, T1_S164_I193_1: 50, T1_S164_I36_1: 50, T1_S179_I35_1: 50}
+    tau_r_groups: [G1, G2, G3]
+
+bank:                      # section 4 (rule unchanged from v1.1 A6)
+  frames_per_fold: 300
+  per_group_total: 100
+  margin_extra: 5          # margin = ceil(800 / |dx_med|) + 5
+  dark_spacing: 20         # spacing for scenarios without measurable motion
+
+detector:                  # section 6
+  backbone: wide_resnet50_2
+  weights: IMAGENET1K_V1
+  layers: [layer2, layer3]
+  patchsize: 3
+  pretrain_embed_dimension: 1024
+  target_embed_dimension: 1024
+  imagenet_mean: [0.485, 0.456, 0.406]
+  imagenet_std: [0.229, 0.224, 0.225]
+  map_shape: [80, 100]
+  coreset_percentage: 0.01
+  coreset_starting_points: 10
+  coreset_projection_dim: 128
+  coreset_chunk_rows: 100000
+  coreset_seeds: [0, 1, 2]
+  query_chunk: 2000
+  batch_size: 4
+  patchcore_commit: fcaa92f
+
+motion:                    # section 7
+  crop_rows: [32, 607]     # inclusive, 576 rows
+  std_min: 1.0e-6
+  max_abs_dx: 400
+  max_abs_dy: 16
+  consistency_min_history: 5
+  consistency_window: 15
+  consistency_abs: 8
+  consistency_rel: 0.2
+  tau_r_grid_step: 0.01
+  tau_r_min_pairs: 1000
+  tau_r_min_consistent: 0.95
+  hold_frames: 5
+  cell_px: 8
+  motion_unknown_max_fraction: 0.05
+  oracle_halfwidth: 15
+  oracle_min_values: 5
+
+windows:                   # section 8
+  k_min: 3
+  k_max: 25
+  k_initial: 10
+  k_stopped: 25
+  reliable_for_k: 5
+  median_window: 15
+  span_px: 800
+
+passes:                    # section 11
+  grace_max: 24
+
+events:                    # section 12
+  merge_gap: 2
+  duration_cap: 25
+  fa_per: 1000
+
+metrics:                   # sections 13 to 15
+  p1_recall_num: 4         # R_pass >= 4/5
+  p1_recall_den: 5
+  p1_cap: 50
+  p2_fa: 2
+  p3_fmax: 10
+  q9_places: 9
+
+bootstrap:                 # section 18
+  replicates: 2000
+  seed: 20260924
+  phase_bin: 50
+  block_length: 1200
+  ci_low_pct: 2.5
+  ci_high_pct: 97.5
+
+chance:                    # section 19 as amended by v1.2.1
+  n_shifts: 200
+  seed_base: 20260925
+  offset_support: full_cyclic_group   # v1.2.1: uniform on {0, ..., N_s - 1}
+  collapse_k: 10
+
+criteria:                  # sections 20 and 21
+  c0a_num: 19              # 20 x detected >= 19 x n_passes
+  c0a_den: 20
+  band: "0.02"
+  c1_pass: "0.80"
+  c1_fail: "0.95"
+  c2_min: "0.06"
+  c4_pass_share: "0.5"
+  c4_fail_share: "0.2"
+
+decomposition:             # section 16 (exploratory)
+  null_row_offset: 10
+  floor_fraction: 0.1
+  diffuse: 0.25
+  camera: 0.5
+  persistent: 0.5
+  separation: 0.25
+  transient: 0.25
+  min_path: 3

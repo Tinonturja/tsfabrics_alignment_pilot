@@ -1,0 +1,12 @@
+# Stage 1 verified set (sandbox, 2026-10-03, Python 3.11.15). The Stage 2/3 lock is written from the Kaggle GPU
+# environment into requirements.lock at the Stage 2 freeze. numpy 2.4.4 is required for the AT-15 offset hashes.
+numpy==2.4.4
+scipy==1.17.1
+pandas==3.0.2
+numba==0.68.0
+llvmlite==0.50.0
+PyYAML==6.0.3
+pytest==9.1.1
+opencv-python-headless==4.13.0.92
+# Stage 2/3 only (GPU): versions recorded from Kaggle at the Stage 2 freeze
+# torch, torchvision

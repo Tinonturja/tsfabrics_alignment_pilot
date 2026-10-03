@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tsfpilot"
+version = "0.1.0"
+description = "TSFabrics alignment pilot (Research Gate v1.2 + v1.2.1)"
+requires-python = ">=3.10"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+  "dataset: needs the TSFabrics dataset (set TSF_ROOT); skipped otherwise",
+  "slow: takes more than a minute",
+]

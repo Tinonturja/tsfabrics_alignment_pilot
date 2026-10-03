@@ -1,0 +1,595 @@
+{
+ "stage": 1,
+ "spec": "Research Gate v1.2 + v1.2.1",
+ "started_utc": "2026-10-03T03:50:43.748926+00:00",
+ "finished_utc": "2026-10-03T03:59:39.540995+00:00",
+ "result": "INCOMPLETE",
+ "fast_mode": false,
+ "counts": {
+  "passed": 50,
+  "failed": 0,
+  "skipped": 3
+ },
+ "blocking_failures": [],
+ "c6_reportable": true,
+ "dataset_root_found": false,
+ "tests": [
+  {
+   "module": "test_at05_motion",
+   "test": "test_at05_sign_magnitude_and_inputs_untouched",
+   "status": "passed",
+   "seconds": 0.054,
+   "covers": [
+    "AT-05"
+   ]
+  },
+  {
+   "module": "test_at05_motion",
+   "test": "test_raw_scenario_on_synthetic_video",
+   "status": "passed",
+   "seconds": 0.259,
+   "covers": [
+    "AT-05"
+   ]
+  },
+  {
+   "module": "test_at05_motion",
+   "test": "test_tau_r_rule",
+   "status": "passed",
+   "seconds": 0.052,
+   "covers": [
+    "AT-05"
+   ]
+  },
+  {
+   "module": "test_at05_motion",
+   "test": "test_c0c_motion_invalid_rule",
+   "status": "passed",
+   "seconds": 0.0,
+   "covers": [
+    "AT-05"
+   ]
+  },
+  {
+   "module": "test_at05_motion",
+   "test": "test_oracle_dx_needs_five_values",
+   "status": "passed",
+   "seconds": 0.001,
+   "covers": [
+    "AT-05"
+   ]
+  },
+  {
+   "module": "test_at06_to_at10_variants",
+   "test": "test_at06a_impulse",
+   "status": "passed",
+   "seconds": 0.001,
+   "covers": [
+    "AT-06a",
+    "AT-07",
+    "AT-08",
+    "AT-09",
+    "AT-10"
+   ]
+  },
+  {
+   "module": "test_at06_to_at10_variants",
+   "test": "test_at07_identities",
+   "status": "passed",
+   "seconds": 0.095,
+   "covers": [
+    "AT-06a",
+    "AT-07",
+    "AT-08",
+    "AT-09",
+    "AT-10"
+   ]
+  },
+  {
+   "module": "test_at06_to_at10_variants",
+   "test": "test_at08_lag_permutation",
+   "status": "passed",
+   "seconds": 0.0,
+   "covers": [
+    "AT-06a",
+    "AT-07",
+    "AT-08",
+    "AT-09",
+    "AT-10"
+   ]
+  },
+  {
+   "module": "test_at06_to_at10_variants",
+   "test": "test_at08_lag_terms_match_v4_and_misalignment_floor",
+   "status": "passed",
+   "seconds": 0.014,
+   "covers": [
+    "AT-06a",
+    "AT-07",
+    "AT-08",
+    "AT-09",
+    "AT-10"
+   ]
+  },
+  {
+   "module": "test_at06_to_at10_variants",
+   "test": "test_at09_causality_and_k",
+   "status": "passed",
+   "seconds": 0.04,
+   "covers": [
+    "AT-06a",
+    "AT-07",
+    "AT-08",
+    "AT-09",
+    "AT-10"
+   ]
+  },
+  {
+   "module": "test_at06_to_at10_variants",
+   "test": "test_motion_status_rules",
+   "status": "passed",
+   "seconds": 0.001,
+   "covers": [
+    "AT-06a",
+    "AT-07",
+    "AT-08",
+    "AT-09",
+    "AT-10"
+   ]
+  },
+  {
+   "module": "test_at06_to_at10_variants",
+   "test": "test_at10_prior_fill_counts",
+   "status": "passed",
+   "seconds": 0.018,
+   "covers": [
+    "AT-06a",
+    "AT-07",
+    "AT-08",
+    "AT-09",
+    "AT-10"
+   ]
+  },
+  {
+   "module": "test_at11_at13_metrics",
+   "test": "test_at11_random_timelines_equal_reference",
+   "status": "passed",
+   "seconds": 7.027,
+   "covers": [
+    "AT-11",
+    "AT-13"
+   ]
+  },
+  {
+   "module": "test_at11_at13_metrics",
+   "test": "test_at11_event_sweep_equals_direct_definition",
+   "status": "passed",
+   "seconds": 0.119,
+   "covers": [
+    "AT-11",
+    "AT-13"
+   ]
+  },
+  {
+   "module": "test_at11_at13_metrics",
+   "test": "test_at11_unit_attribution_sums_to_total",
+   "status": "passed",
+   "seconds": 0.076,
+   "covers": [
+    "AT-11",
+    "AT-13"
+   ]
+  },
+  {
+   "module": "test_at11_at13_metrics",
+   "test": "test_at11_hand_cases",
+   "status": "passed",
+   "seconds": 0.001,
+   "covers": [
+    "AT-11",
+    "AT-13"
+   ]
+  },
+  {
+   "module": "test_at11_at13_metrics",
+   "test": "test_c0a_integer_rule",
+   "status": "passed",
+   "seconds": 0.001,
+   "covers": [
+    "AT-11",
+    "AT-13"
+   ]
+  },
+  {
+   "module": "test_at11_at13_metrics",
+   "test": "test_at13_constant_score_gives_zero_p3[A-G1]",
+   "status": "passed",
+   "seconds": 0.094,
+   "covers": [
+    "AT-11",
+    "AT-13"
+   ]
+  },
+  {
+   "module": "test_at11_at13_metrics",
+   "test": "test_at13_constant_score_gives_zero_p3[A-G4]",
+   "status": "passed",
+   "seconds": 0.017,
+   "covers": [
+    "AT-11",
+    "AT-13"
+   ]
+  },
+  {
+   "module": "test_at11_at13_metrics",
+   "test": "test_at11_real_layout_equals_reference[A-G1]",
+   "status": "passed",
+   "seconds": 1.077,
+   "covers": [
+    "AT-11",
+    "AT-13"
+   ]
+  },
+  {
+   "module": "test_at11_at13_metrics",
+   "test": "test_at11_real_layout_equals_reference[A-G4]",
+   "status": "passed",
+   "seconds": 0.498,
+   "covers": [
+    "AT-11",
+    "AT-13"
+   ]
+  },
+  {
+   "module": "test_at12_at16_decision",
+   "test": "test_at12_grid_outcome_counts_and_invariants",
+   "status": "passed",
+   "seconds": 62.546,
+   "covers": [
+    "AT-12",
+    "AT-16"
+   ]
+  },
+  {
+   "module": "test_at12_at16_decision",
+   "test": "test_at12_random_primitive_pairs_equal_reference",
+   "status": "passed",
+   "seconds": 6.046,
+   "covers": [
+    "AT-12",
+    "AT-16"
+   ]
+  },
+  {
+   "module": "test_at12_at16_decision",
+   "test": "test_at12_follow_up",
+   "status": "passed",
+   "seconds": 0.001,
+   "covers": [
+    "AT-12",
+    "AT-16"
+   ]
+  },
+  {
+   "module": "test_at12_at16_decision",
+   "test": "test_validity_precedence_independent_of_key_order",
+   "status": "passed",
+   "seconds": 0.0,
+   "covers": [
+    "AT-12",
+    "AT-16"
+   ]
+  },
+  {
+   "module": "test_at12_at16_decision",
+   "test": "test_at16_boundaries",
+   "status": "passed",
+   "seconds": 0.041,
+   "covers": [
+    "AT-12",
+    "AT-16"
+   ]
+  },
+  {
+   "module": "test_at14_data",
+   "test": "test_label_counts_equal_forensic_table",
+   "status": "skipped",
+   "seconds": 0.0,
+   "covers": [
+    "AT-14"
+   ]
+  },
+  {
+   "module": "test_at14_data",
+   "test": "test_passes_cover_every_test_defect_frame",
+   "status": "skipped",
+   "seconds": 0.0,
+   "covers": [
+    "AT-14"
+   ]
+  },
+  {
+   "module": "test_at14_data",
+   "test": "test_bank_capacities_and_quotas",
+   "status": "skipped",
+   "seconds": 0.0,
+   "covers": [
+    "AT-14"
+   ]
+  },
+  {
+   "module": "test_at15_chance",
+   "test": "test_at15_offsets_reproduce_and_lie_in_support[A-G1]",
+   "status": "passed",
+   "seconds": 0.001,
+   "covers": [
+    "AT-15"
+   ]
+  },
+  {
+   "module": "test_at15_chance",
+   "test": "test_at15_offsets_reproduce_and_lie_in_support[A-G4]",
+   "status": "passed",
+   "seconds": 0.001,
+   "covers": [
+    "AT-15"
+   ]
+  },
+  {
+   "module": "test_at15_chance",
+   "test": "test_shift_is_numpy_roll_within_scenarios",
+   "status": "passed",
+   "seconds": 0.001,
+   "covers": [
+    "AT-15"
+   ]
+  },
+  {
+   "module": "test_at15_chance",
+   "test": "test_at15_random_collapses_strong_does_not[A-G1]",
+   "status": "passed",
+   "seconds": 4.182,
+   "covers": [
+    "AT-15"
+   ]
+  },
+  {
+   "module": "test_at15_chance",
+   "test": "test_at15_random_collapses_strong_does_not[A-G4]",
+   "status": "passed",
+   "seconds": 2.096,
+   "covers": [
+    "AT-15"
+   ]
+  },
+  {
+   "module": "test_at15_chance",
+   "test": "test_at15_agrees_with_calibration_kernel_first_traces",
+   "status": "passed",
+   "seconds": 17.497,
+   "covers": [
+    "AT-15"
+   ]
+  },
+  {
+   "module": "test_at15_chance",
+   "test": "test_at15_calibration_regression_cell",
+   "status": "passed",
+   "seconds": 417.841,
+   "covers": [
+    "AT-15"
+   ]
+  },
+  {
+   "module": "test_at17_c6",
+   "test": "test_at17_c6_classes",
+   "status": "passed",
+   "seconds": 13.946,
+   "covers": [
+    "AT-17"
+   ]
+  },
+  {
+   "module": "test_at17_c6",
+   "test": "test_c6_replay_reproduces_audit_exactly",
+   "status": "passed",
+   "seconds": 0.0,
+   "covers": [
+    "AT-17"
+   ]
+  },
+  {
+   "module": "test_bootstrap",
+   "test": "test_identity_draw_equals_exact_metrics[A-G1]",
+   "status": "passed",
+   "seconds": 0.262,
+   "covers": [
+    "section 18"
+   ]
+  },
+  {
+   "module": "test_bootstrap",
+   "test": "test_identity_draw_equals_exact_metrics[A-G4]",
+   "status": "passed",
+   "seconds": 0.095,
+   "covers": [
+    "section 18"
+   ]
+  },
+  {
+   "module": "test_bootstrap",
+   "test": "test_draws_are_reproducible_and_ordered",
+   "status": "passed",
+   "seconds": 0.001,
+   "covers": [
+    "section 18"
+   ]
+  },
+  {
+   "module": "test_bootstrap",
+   "test": "test_fold_cis_and_lb",
+   "status": "passed",
+   "seconds": 0.165,
+   "covers": [
+    "section 18"
+   ]
+  },
+  {
+   "module": "test_passes_bank_config",
+   "test": "test_fold_units_match_spec[A-G1]",
+   "status": "passed",
+   "seconds": 0.001,
+   "covers": [
+    "sections 4, 11, 18; config"
+   ]
+  },
+  {
+   "module": "test_passes_bank_config",
+   "test": "test_fold_units_match_spec[A-G4]",
+   "status": "passed",
+   "seconds": 0.001,
+   "covers": [
+    "sections 4, 11, 18; config"
+   ]
+  },
+  {
+   "module": "test_passes_bank_config",
+   "test": "test_window_end_rule",
+   "status": "passed",
+   "seconds": 0.0,
+   "covers": [
+    "sections 4, 11, 18; config"
+   ]
+  },
+  {
+   "module": "test_passes_bank_config",
+   "test": "test_phase_units_rules",
+   "status": "passed",
+   "seconds": 0.001,
+   "covers": [
+    "sections 4, 11, 18; config"
+   ]
+  },
+  {
+   "module": "test_passes_bank_config",
+   "test": "test_bank_rule_reproduces_frozen_quotas",
+   "status": "passed",
+   "seconds": 0.008,
+   "covers": [
+    "sections 4, 11, 18; config"
+   ]
+  },
+  {
+   "module": "test_passes_bank_config",
+   "test": "test_bank_eligibility_capacity_and_selection",
+   "status": "passed",
+   "seconds": 0.0,
+   "covers": [
+    "sections 4, 11, 18; config"
+   ]
+  },
+  {
+   "module": "test_passes_bank_config",
+   "test": "test_code_constants_equal_config",
+   "status": "passed",
+   "seconds": 0.0,
+   "covers": [
+    "sections 4, 11, 18; config"
+   ]
+  },
+  {
+   "module": "test_passes_bank_config",
+   "test": "test_config_integrity",
+   "status": "passed",
+   "seconds": 0.021,
+   "covers": [
+    "sections 4, 11, 18; config"
+   ]
+  },
+  {
+   "module": "test_reference",
+   "test": "test_reference_metric_tests_pass",
+   "status": "passed",
+   "seconds": 0.564,
+   "covers": [
+    "reference self-tests"
+   ]
+  },
+  {
+   "module": "test_reference",
+   "test": "test_reference_bank_quotas",
+   "status": "passed",
+   "seconds": 0.011,
+   "covers": [
+    "reference self-tests"
+   ]
+  },
+  {
+   "module": "test_reference",
+   "test": "test_src_never_imports_reference",
+   "status": "passed",
+   "seconds": 0.002,
+   "covers": [
+    "reference self-tests"
+   ]
+  }
+ ],
+ "config_sha256": "d0f1d9002e3d4648a13a7e50dd231661ceb1598aa0fdd3914e3be93f7f75797b",
+ "hashes": {
+  "PREREGISTRATION.md": "182df443b29e8b5ee1922de61219871c1a6e052f538fd8ef1c4b4466db4a70dd",
+  "PREREGISTRATION_AMENDMENT_v1.2.1.md": "4118fc4b5761f38dab1db4e1283e52ad1ddc10dd4c6a5ebcdf5557eb8e4a1039",
+  "configs/pilot_v1_2_1.yaml": "d0f1d9002e3d4648a13a7e50dd231661ceb1598aa0fdd3914e3be93f7f75797b",
+  "data/frozen/forensic_cutline_recurrence.csv": "64d366e8385b5d38a41cb7f7d6f67a2b45c0b2f079ba87e90c3557c1a281dfa2",
+  "data/frozen/forensic_scenario_summary.csv": "3020d6185dd7bb18f2b53e44c8debd684c4e7c18edea19620cf0333f622341e1",
+  "data/frozen/tsfabrics_condition_clusters.csv": "e93762aa6e09701859c2c0682b60a1e0000752459073653453018407ac54bc78",
+  "data/frozen/tsfabrics_pilot_bank_audit.csv": "717f1b2190ae6cb588766c49665a0c807550bf20e8ca0b9409e0d356aa344c08",
+  "data/frozen/tsfabrics_pilot_passes_and_candidate_tracks.csv": "ade3916df3940a02728d9a8391d637c71ea1986a9dd767d9fdfc6395ace7b90c",
+  "src/tsfpilot/__init__.py": "3500f0819fa46c7ade99f2b9bc6bdb4746cda66c420162f8e2e0490c90100d71",
+  "src/tsfpilot/bank.py": "aa8cba12c890ca005f2aa3524b3016356df15c969a8de026487dd4a71872f728",
+  "src/tsfpilot/bootstrap.py": "0202cb345937e1073dd746c5a42e18facb7b18117f8325830b096ff5dba91188",
+  "src/tsfpilot/chance.py": "68a5c629aedd2a5b988aa1c849427fe1c27de5442bb96e7329ce44f150765b2a",
+  "src/tsfpilot/config.py": "703506ab82d5f0d05da168771bd317da94fc23d1aea185e2d2ee364f61156e84",
+  "src/tsfpilot/decision.py": "3eefe20edfd0ba3224ade4bb2b4e16252f4ea23e2ba5f1b3030b21a247e29cd6",
+  "src/tsfpilot/decomposition.py": "3bebe8c4133086acb0b05ebef1ba51be6d5c6652087297e64345199e0704256a",
+  "src/tsfpilot/events.py": "586f50a589c6eb686c117b47fdd8d93171fd31d22b6cd055edd2140e9f1e9200",
+  "src/tsfpilot/exact.py": "5adbe3f7d92c46d73d01768c089a64cca20fcb483da407c63e049f9aed234973",
+  "src/tsfpilot/frames.py": "c99a9eadfdb104d7d7ce0e85d6cec28212ba876027594e9b1b6785e43aa3974d",
+  "src/tsfpilot/manifest.py": "2665ad7e71eb10b6e7d6390fe2b2b2a0b9731513bc479dacff770cdd4d967257",
+  "src/tsfpilot/metrics.py": "705d919f42356993d013d226c1e6aa9a7fd48d774821b1b5a6b10a60f290889d",
+  "src/tsfpilot/motion.py": "2598beb587790bedbc12b9cedfd7898906eb584791b86690c6bd85d56fc614ae",
+  "src/tsfpilot/passes.py": "e8acf3fc70d66c4aedaee204ebc632a6eca1d79083d811ebc52e1bbf3cf1d0eb",
+  "src/tsfpilot/variants.py": "69218ca9c39903cc4571ab488b75768fb7c0d31112fe7b7dfba06a879910fad6",
+  "src/tsfpilot/windows.py": "4ce4ce139f31596c51d1d1a1aa5048812eb6a494c97b9f4d16bb73ffda341057",
+  "tests/conftest.py": "b351507a3e839cd6f66b5b0f4edc6ee737fc495e994675c4c95e5d1f2c14c3ec",
+  "tests/fixtures/c6_replay.py": "39bd4883f1afcb0f27da164cea0d781737ec1c592031a1ff64418dcf39133a7d",
+  "tests/test_at05_motion.py": "13132acabbba66866894682bdd85471da4b3e3bcbe8ccca5d023cb1bb58f69ae",
+  "tests/test_at06_to_at10_variants.py": "3b1b086236d446404f04a5acf7f4fc9644387f7badcbb539fe05bcdd03cc2309",
+  "tests/test_at11_at13_metrics.py": "8ced7a47787a2c7defc38cb8d1ef96d6e1c600f052ce4b605e4b71f87c36b43f",
+  "tests/test_at12_at16_decision.py": "ff32d48516687e82f06848d43e33b0f130a402e5b8df42911b74907e0af98a03",
+  "tests/test_at14_data.py": "7b8d3b340d3de4a9c53f236fb6bea770850f5e50ebd3c46ce6b597f5efb88976",
+  "tests/test_at15_chance.py": "1d7f5980df604fce7f842082f9bbaf3deaf0f4a51e31f0882a310376616e070d",
+  "tests/test_at17_c6.py": "c0058d27384702ae87976937db6002079eb4088baafbcab350e65e02437dbad5",
+  "tests/test_bootstrap.py": "529afe5312f0291503d79ab5c4b06772b01c4104e49b01bba7ee3e345477e6c0",
+  "tests/test_passes_bank_config.py": "ab4e832e84f9a9130a5adddd80159472d975ee9065f5859bbec7f9eca5411a15",
+  "tests/test_reference.py": "133554914b79b2ca310f771378be153d2a91653528c179d492e3a7c41a449a06"
+ },
+ "git": {
+  "commit": "e42998c77507e5a9bd5808c6e73dcda931e0c079",
+  "clean": true
+ },
+ "environment": {
+  "python": "3.11.15 (main, Mar  3 2026, 09:26:23) [GCC 13.3.0]",
+  "platform": "Linux-6.18.44-fc-v64-x86_64-with-glibc2.39",
+  "numpy": "2.4.4",
+  "scipy": "1.17.1",
+  "pandas": "3.0.2",
+  "numba": "0.68.0",
+  "yaml": "6.0.3",
+  "cv2": "4.13.0",
+  "torch": "2.14.0+cu130",
+  "torchvision": "0.29.0+cu130",
+  "cuda": "13.0",
+  "cudnn": 92400,
+  "gpu": null
+ }
+}

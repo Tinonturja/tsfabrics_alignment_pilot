@@ -1,0 +1,5 @@
+# Stage 2 additions, installed with --no-deps on top of requirements.txt (Kaggle GPU notebook).
+# torch, torchvision and timm come from the Kaggle image; their versions are recorded in the Stage 2 report
+# and in frozen/requirements.lock. faiss is used only to import the official common.py for the AT-02 reference
+# and for a non-gated cross-check in AT-03.
+faiss-cpu==1.15.1

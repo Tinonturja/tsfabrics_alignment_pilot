@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.2.0 (2026-10-05): Stage 2 implementation
+
+- Stage 2 implementation audit (`docs/stage2/STAGE2_IMPLEMENTATION_AUDIT.md`) and clarifications DL-0013:
+  tau_cell and deployment thresholds take their v1.1 definitions; AT-06b, AT-03 and fixture choices fixed.
+- Official PatchCore files copied byte-for-byte from `fcaa92f` into `third_party/patchcore/`, with a blob-id test.
+- New modules: `access` (purpose-tagged frame gate), `detector` (feature path, D1 to D4), `coreset` (official
+  sampler with the chunked projection, D5), `scoring` (squared L2 1-NN, D6), `stage2_motion` (raw motion, tau_r,
+  validation statuses), `validation` (mu0, b1, b3, tau_cell, profile, deployment thresholds), `acceptance2`
+  (AT-01, AT-02, AT-03, AT-04a, AT-04b, AT-06b), `official` (pinned imports).
+- `scripts/run_stage2.py` (phases 0, A to E, resumable, smoke mode) and `notebooks/stage2_kaggle.ipynb`.
+- CPU tests: access rules, feature path against the official `PatchCore._embed`, coreset equivalence and
+  reproducibility, distances against float64, validation constants, deployment rule, AT-06b logic, section 23
+  numbers. A CPU smoke run of the whole chain on synthetic frames completed (not a record).
+
 ## 0.1.0 (2026-10-03): Stage 1 implementation
 
 - Repository scaffold, preregistration v1.2, amendment v1.2.1, decision log, open questions.

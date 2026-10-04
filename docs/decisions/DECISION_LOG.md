@@ -1,7 +1,7 @@
 # Decision log
 
 Each entry says what was decided, when, on what evidence, and whether any TSFabrics test-scenario detector output
-existed at the time. Up to and including DL-0013, none did: no anomaly map, score or metric has been computed on any
+existed at the time. Up to and including DL-0014, none did: no anomaly map, score or metric has been computed on any
 frame of any scenario.
 
 | ID | Date (UTC) | Decision | Evidence | Test outputs seen? |
@@ -19,6 +19,7 @@ frame of any scenario.
 | DL-0011 | 2026-10-04 | Pre-Kaggle repository audit. Plumbing fixes only, no methodological change: (1) Kaggle notebook installs the pinned packages into an isolated folder, checks the install and the imported numpy version, and refuses to run if the repository or dataset is ambiguous or missing; (2) `layout.py` (reference and calibration) locates the frozen CSV from its own folder name instead of a path-substring test; (3) the Stage 1 report hashes reference, calibration, scripts and the notebook too, plus one fingerprint over all hashed files; (4) `calibration/c0b/HASHES_NOTE.md` explains the single expected `HASHES.txt` mismatch (`layout.py`) | Fresh clone in a clean environment: 50 passed, 3 skipped (AT-14) | No |
 | DL-0012 | 2026-10-04 | **Stage 1 PASS (the record).** Kaggle, CPU, commit `ebe198c` (tree `d266f18b...`): 53 passed, 0 failed, 0 skipped, including the three AT-14 dataset tests. Files fingerprint `a27ac91d1f82e4981576ba771bfe148e09146584fcc6c8a9ca6ed57c88c20e6e` equals the fingerprint of the committed tree. Report SHA-256 `41ca8d47daa5b96cdfba15c963d1b86988c071591af6c98850c4e3c229c9d911`; bank frames CSV `534535eb8ea947bed4fb9c9a03352f52ba0ba197ba7694385b5735e9b936a535`. Python 3.13.15, numpy 2.4.4, numba 0.68.0, OpenCV 4.13.0. Stage 2 may start | `audit/stage1_kaggle/` | No |
 | DL-0013 | 2026-10-05 | **Stage 2 implementation audit and clarifications** (`docs/stage2/STAGE2_IMPLEMENTATION_AUDIT.md`, section G). Terms that v1.2 lists but does not define take their v1.1 definitions: tau_cell = 99.9th percentile (numpy 'linear') of a_t over all cells of all validation frames, per fold and seed; deployment threshold = the section 14 tau_2 rule on the validation timeline, per fold, seed and variant. AT-06b, AT-03 and AT fixture choices fixed as in section G. Official PatchCore files copied byte-for-byte from `fcaa92f` (blob ids tested) instead of a submodule. No decision quantity changes | Specification text only; no image, map, score or motion estimate of any scenario computed | No |
+| DL-0014 | 2026-10-05 | Stage 2 code written and unit-tested on CPU; implementation choices where the text is silent are listed below. No Kaggle run yet | CPU tests on synthetic data; a CPU smoke run of the runner on synthetic frames with random backbone weights | No |
 
 ## DL-0009: implementation choices (none changes a frozen rule)
 
@@ -34,6 +35,22 @@ frame of any scenario.
 | I-8 | AT-15 | Added a regression test: the pipeline's k equals the calibration kernel's k on all 200 traces of the amendment's fixture cell, and 6 of 200 are not collapsed | Ties the pipeline to the calibration evidence | No |
 | I-9 | `reference/layout.py`, `calibration/c0b/layout.py` | The absolute CSV path was replaced by a repository-relative path | Portability; logic unchanged | No |
 | I-10 | Tests only | Stage 1 builds the fold layouts from the passes CSV with synthetic labels (label 4 inside each pass, 1 elsewhere) and scenario-median k | Gives the same N_f as the real labels; AT-14 checks the assumption on the real label files | No (tests only) |
+
+## DL-0014: Stage 2 implementation choices (none changes a frozen rule)
+
+| # | Where | Choice | Why it is allowed | Can it change a result? |
+|---|---|---|---|---|
+| S2-1 | Section 6, Layers | layer2 and layer3 are read by calling the torchvision modules in order up to layer3, not with forward hooks | The same computation; AT-02 compares the output with the hooked official `_embed` | No |
+| S2-2 | Section 6, Coreset | The official `run()` is called unchanged; a subclass overrides only `_reduce_features` (D5) and records the indices the sampler returns | Indices must be saved (section 6) and `run()` returns only vectors | No |
+| S2-3 | Section 24 | Validation features do not depend on the fold, so one pass over the 1,212 frames scores all six coresets | Same maps as six separate passes | No |
+| S2-4 | Section 24 | Bank features live in a temporary disk array and are deleted once the fold's coresets exist | "Never scored, displayed or summarised" | No |
+| S2-5 | Section 6, Distance | Expression order `(sum q^2) + (sum b^2) - 2 q.b`, clamp at 0, then the minimum | The text fixes the formula, not the floating-point order; AT-03 bounds the error | Only at the rounding level AT-03 measures |
+| S2-6 | Section 9 | mu0 accumulated in float64 over the float32 maps | Fixes the summation precision | No |
+| S2-7 | AT-02 | One frame at a time for both paths | Isolates the D4 order from batch effects (AT-04b tests batches) | No |
+| S2-8 | AT-03 | faiss `IndexFlatL2` distances are also recorded, not gated | Shows the official tool has the same float32 behaviour | No |
+| S2-9 | Stage 2 runner | Stops at the first failed phase; `--smoke` caps sizes and is never the record | No result is produced after a failed acceptance test | No |
+| S2-10 | Section 7 | Raw motion is computed once per scenario and shared by both folds; each fold's tau_r uses only its own list | Raw estimates do not depend on the fold | No |
+| S2-11 | U-I1 | Reported count: frames after frame 1 without an estimate (constant crop or right after one) | Uses Stage 1 functions unchanged | No |
 
 ## Note on commit identifiers
 

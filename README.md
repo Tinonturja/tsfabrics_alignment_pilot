@@ -14,7 +14,7 @@ it is not in the code.
 | Stage | What | Status |
 |---|---|---|
 | Stage 1 | Synthetic data, reference scripts, frozen CSVs, label files. CPU. No images | **PASS** on Kaggle, 2026-10-04: 53 passed, 0 failed, 0 skipped (record in `audit/stage1_kaggle/`, decision log DL-0012) |
-| Stage 2 | Bank and validation frames only: features, coresets, validation constants, tau_r. GPU | Not yet implemented |
+| Stage 2 | Bank and validation frames only: features, coresets, validation constants, tau_r. GPU | Implemented and unit-tested on CPU (2026-10-05, DL-0013, DL-0014); Kaggle run pending |
 | Stage 3 | One locked run on the test folds | Not yet implemented |
 
 ## Layout
@@ -29,7 +29,11 @@ calibration/c0b/                   C0b calibration package: protocol, addendum, 
 src/tsfpilot/                      the pipeline
 tests/                             pytest; one file per acceptance-test group (AT-05 to AT-17)
 scripts/run_stage1.py              runs Stage 1 and writes audit/stage1_report.json
-notebooks/stage1_kaggle.ipynb      thin Kaggle launcher
+scripts/run_stage2.py              runs Stage 2 in resumable phases and writes stage2_report.json plus frozen/
+notebooks/stage1_kaggle.ipynb      thin Kaggle launcher (Stage 1)
+notebooks/stage2_kaggle.ipynb      thin Kaggle launcher (Stage 2, GPU)
+third_party/patchcore/             official PatchCore files, byte-for-byte at fcaa92f (blob ids tested)
+docs/stage2/                       Stage 2 implementation audit and walkthrough
 docs/decisions/DECISION_LOG.md     dated decisions, including implementation choices
 docs/UNRESOLVED.md                 open questions
 docs/literature/                   novelty audit evidence
@@ -46,6 +50,18 @@ python scripts/run_stage1.py --allow-no-dataset
 
 On Kaggle (the record): attach the TSFabrics dataset and this repository, open `notebooks/stage1_kaggle.ipynb`,
 run all cells. The result must be `PASS` before Stage 2 starts.
+
+## Run Stage 2
+
+Unit tests, anywhere (CPU builds of torch are enough):
+
+```bash
+pip install -r requirements.txt && pip install torch torchvision timm && pip install --no-deps -r requirements-stage2.txt
+python -m pytest -q tests/test_stage2_*.py tests/test_third_party_pin.py
+```
+
+On Kaggle (the record): GPU accelerator, Internet on, attach the TSFabrics dataset and this repository, open
+`notebooks/stage2_kaggle.ipynb`, and use Save & Run All. See `docs/stage2/STAGE2_WALKTHROUGH.md`.
 
 ## Rules the code enforces
 

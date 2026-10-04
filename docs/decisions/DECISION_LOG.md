@@ -1,7 +1,7 @@
 # Decision log
 
 Each entry says what was decided, when, on what evidence, and whether any TSFabrics test-scenario detector output
-existed at the time. Up to and including DL-0012, none did: no anomaly map, score or metric has been computed on any
+existed at the time. Up to and including DL-0013, none did: no anomaly map, score or metric has been computed on any
 frame of any scenario.
 
 | ID | Date (UTC) | Decision | Evidence | Test outputs seen? |
@@ -18,6 +18,7 @@ frame of any scenario.
 | DL-0010 | 2026-10-03 | Independent code audit against the specification: no defect changing a decision quantity found. Two gaps fixed: C0c (motion-invalid) had no function, now `motion.motion_invalid` with a strict integer 5% test; constants written in code are now checked against the YAML by a test | Independent audit notes | No |
 | DL-0011 | 2026-10-04 | Pre-Kaggle repository audit. Plumbing fixes only, no methodological change: (1) Kaggle notebook installs the pinned packages into an isolated folder, checks the install and the imported numpy version, and refuses to run if the repository or dataset is ambiguous or missing; (2) `layout.py` (reference and calibration) locates the frozen CSV from its own folder name instead of a path-substring test; (3) the Stage 1 report hashes reference, calibration, scripts and the notebook too, plus one fingerprint over all hashed files; (4) `calibration/c0b/HASHES_NOTE.md` explains the single expected `HASHES.txt` mismatch (`layout.py`) | Fresh clone in a clean environment: 50 passed, 3 skipped (AT-14) | No |
 | DL-0012 | 2026-10-04 | **Stage 1 PASS (the record).** Kaggle, CPU, commit `ebe198c` (tree `d266f18b...`): 53 passed, 0 failed, 0 skipped, including the three AT-14 dataset tests. Files fingerprint `a27ac91d1f82e4981576ba771bfe148e09146584fcc6c8a9ca6ed57c88c20e6e` equals the fingerprint of the committed tree. Report SHA-256 `41ca8d47daa5b96cdfba15c963d1b86988c071591af6c98850c4e3c229c9d911`; bank frames CSV `534535eb8ea947bed4fb9c9a03352f52ba0ba197ba7694385b5735e9b936a535`. Python 3.13.15, numpy 2.4.4, numba 0.68.0, OpenCV 4.13.0. Stage 2 may start | `audit/stage1_kaggle/` | No |
+| DL-0013 | 2026-10-05 | **Stage 2 implementation audit and clarifications** (`docs/stage2/STAGE2_IMPLEMENTATION_AUDIT.md`, section G). Terms that v1.2 lists but does not define take their v1.1 definitions: tau_cell = 99.9th percentile (numpy 'linear') of a_t over all cells of all validation frames, per fold and seed; deployment threshold = the section 14 tau_2 rule on the validation timeline, per fold, seed and variant. AT-06b, AT-03 and AT fixture choices fixed as in section G. Official PatchCore files copied byte-for-byte from `fcaa92f` (blob ids tested) instead of a submodule. No decision quantity changes | Specification text only; no image, map, score or motion estimate of any scenario computed | No |
 
 ## DL-0009: implementation choices (none changes a frozen rule)
 

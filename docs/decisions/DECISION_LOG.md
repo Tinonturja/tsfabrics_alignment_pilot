@@ -1,8 +1,9 @@
 # Decision log
 
 Each entry says what was decided, when, on what evidence, and whether any TSFabrics test-scenario detector output
-existed at the time. Up to and including DL-0014, none did: no anomaly map, score or metric has been computed on any
-frame of any scenario.
+existed at the time. Up to and including DL-0016, none did: no anomaly map, score or metric has been computed on any
+frame of a test scenario. The only detector outputs computed so far are validation-frame numbers of the Stage 2 smoke
+run (DL-0015).
 
 | ID | Date (UTC) | Decision | Evidence | Test outputs seen? |
 |---|---|---|---|---|
@@ -20,6 +21,8 @@ frame of any scenario.
 | DL-0012 | 2026-10-04 | **Stage 1 PASS (the record).** Kaggle, CPU, commit `ebe198c` (tree `d266f18b...`): 53 passed, 0 failed, 0 skipped, including the three AT-14 dataset tests. Files fingerprint `a27ac91d1f82e4981576ba771bfe148e09146584fcc6c8a9ca6ed57c88c20e6e` equals the fingerprint of the committed tree. Report SHA-256 `41ca8d47daa5b96cdfba15c963d1b86988c071591af6c98850c4e3c229c9d911`; bank frames CSV `534535eb8ea947bed4fb9c9a03352f52ba0ba197ba7694385b5735e9b936a535`. Python 3.13.15, numpy 2.4.4, numba 0.68.0, OpenCV 4.13.0. Stage 2 may start | `audit/stage1_kaggle/` | No |
 | DL-0013 | 2026-10-05 | **Stage 2 implementation audit and clarifications** (`docs/stage2/STAGE2_IMPLEMENTATION_AUDIT.md`, section G). Terms that v1.2 lists but does not define take their v1.1 definitions: tau_cell = 99.9th percentile (numpy 'linear') of a_t over all cells of all validation frames, per fold and seed; deployment threshold = the section 14 tau_2 rule on the validation timeline, per fold, seed and variant. AT-06b, AT-03 and AT fixture choices fixed as in section G. Official PatchCore files copied byte-for-byte from `fcaa92f` (blob ids tested) instead of a submodule. No decision quantity changes | Specification text only; no image, map, score or motion estimate of any scenario computed | No |
 | DL-0014 | 2026-10-05 | Stage 2 code written and unit-tested on CPU; implementation choices where the text is silent are listed below. No Kaggle run yet | CPU tests on synthetic data; a CPU smoke run of the runner on synthetic frames with random backbone weights | No |
+| DL-0015 | 2026-10-06 | **Stage 2 run 1 FAIL at phase A** (Kaggle notebook version 1, T4, files fingerprint `b918ed8b...`, report `51a270cc...`). A-G1 tau_r 0.00; A-G4 tau_r undefined (best 93.6% consistent at 0.75), so A-G4 is motion-invalid under the frozen rule; AT-06b A-G1 92 of 200. Smoke run (not the record): AT-04b maps rel up to 1.1e-5 against a 1e-6 limit. Diagnosis in `docs/stage2/STAGE2_RUN1_DIAGNOSIS.md`: G1 frame-interval alternation at the edge of the consistency band; I199 aliasing; squared-distance amplification. No code error found | Phase A record, smoke phases B and D, the 13 motion files (hashes match `phase_A.json`) | No |
+| DL-0016 | 2026-10-07 | **Amendment v1.2.2 adopted** by Tinon (`docs/stage2/AMENDMENT_v1.2.2_PROTOCOL.md`, SHA-256 `276fe9838efb6f6e334705b131d16c93f5d3c8d681b23fba57e15bb3fa25a704`). A post-Stage-2 diagnostic amendment, not preregistered: motion candidate M1 with band (b) B(M) = max(8, 0.2 x \|M\| / 2); AT-04b, AT-03 and AT-06b revised. Text written as draft, audited (`AMENDMENT_v1.2.2_AUDIT.md`, blockers B1 to B6, changes D1 to D9), then adopted. Hashed before any calibration or real-data computation under M1. Calibration implementation notes below | Draft, audit, diagnosis; no M1 flag, status or tau_r computed on any data | No |
 
 ## DL-0009: implementation choices (none changes a frozen rule)
 
@@ -51,6 +54,13 @@ frame of any scenario.
 | S2-9 | Stage 2 runner | Stops at the first failed phase; `--smoke` caps sizes and is never the record | No result is produced after a failed acceptance test | No |
 | S2-10 | Section 7 | Raw motion is computed once per scenario and shared by both folds; each fold's tau_r uses only its own list | Raw estimates do not depend on the fold | No |
 | S2-11 | U-I1 | Reported count: frames after frame 1 without an estimate (constant crop or right after one) | Uses Stage 1 functions unchanged | No |
+
+## DL-0016: calibration implementation notes (approved with the adoption)
+
+| # | Where | Choice | Why it is allowed | Can it change a result? |
+|---|---|---|---|---|
+| V-1 | v1.2.2 section 4, frozen rule | `motion.tau_r` returns only tau, not per-pair flags. `motion.frozen_consistency_flags` runs the same loop and calls the frozen `_consistent`; a test shows that the tau from these flags, with the frozen grid rule, equals `motion.tau_r` on random inputs. `motion.tau_r` and `motion.statuses` are unchanged | Section 4 needs the item 3 flag per frame; the test ties it to the frozen function | No |
+| V-2 | v1.2.2 section 4, sets | "Frames 2 to 20 are warm-up and excluded for both rules" applies to every set, including event frames | The sentence is not limited to clean frames | Only which frames are counted |
 
 ## Note on commit identifiers
 

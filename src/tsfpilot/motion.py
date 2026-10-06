@@ -160,3 +160,122 @@ def motion_unknown(known, K):
         lo = max(1, t - int(K[i]) + 2)
         out[i] = (cb[t] - cb[lo - 1]) > 0 if lo <= t else False
     return out
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# Amendment v1.2.2 (docs/stage2/AMENDMENT_v1.2.2_PROTOCOL.md, section 3 C1): candidate motion rule M1.
+# The frozen functions above are unchanged. M1 tests the two-frame displacement S_t = dx_t + dx_(t-1) against the
+# band B(M) = max(consistency_abs, consistency_rel * |M| / 2), choice (b), using the frozen constants.
+# ---------------------------------------------------------------------------------------------------------------
+
+def frozen_consistency_flags(dx, dy, has, mcfg):
+    """Item 3 flag of the frozen rule for every frame with an estimate, exactly as computed inside tau_r.
+    Returns (flags bool array over all frames, False where there is no estimate; mask of frames with an estimate).
+    Used by the v1.2.2 section 4 calibration; tests tie it to tau_r (DL-0016, V-1)."""
+    n = len(dx)
+    flags = np.zeros(n, bool)
+    prev = []
+    for i in range(n):
+        if not has[i]:
+            continue
+        c = abs(dx[i]) <= mcfg["max_abs_dx"] and abs(dy[i]) <= mcfg["max_abs_dy"]
+        if c and len(prev) >= mcfg["consistency_min_history"]:
+            c = _consistent(dx[i], prev, mcfg)
+        flags[i] = c
+        prev.append(float(dx[i]))
+    return flags, np.asarray(has, bool).copy()
+
+
+def grid_tau(rs, cons, mcfg):
+    """The tau_r grid rule of section 7 item 3 applied to pooled (r, consistent) pairs, as in tau_r."""
+    rs = np.asarray(rs); cons = np.asarray(cons, bool)
+    steps = int(round(1 / mcfg["tau_r_grid_step"]))
+    for g in range(steps + 1):
+        tau = g / steps
+        sel = rs >= tau
+        n = int(sel.sum())
+        if n >= mcfg["tau_r_min_pairs"] and 100 * int(cons[sel].sum()) >= 95 * n:
+            return tau
+    return None
+
+
+def two_frame_sum(dx, has):
+    """S_t = dx_t + dx_(t-1) where frame t and frame t - 1 both have an estimate; nan otherwise."""
+    dx = np.asarray(dx, float); has = np.asarray(has, bool)
+    s = np.full(len(dx), np.nan)
+    if len(dx) > 1:
+        both = has[1:] & has[:-1]
+        s[1:][both] = dx[1:][both] + dx[:-1][both]
+    return s
+
+
+def m1_band(med, mcfg):
+    """B(M) = max(8, 0.2 x |M| / 2): the frozen band in single-frame units applied to the two-frame sum."""
+    return max(mcfg["consistency_abs"], mcfg["consistency_rel"] * abs(med) / 2)
+
+
+def _m1_consistent(s, hist, mcfg):
+    med = float(np.median(hist[-mcfg["consistency_window"]:]))
+    return abs(s - med) <= m1_band(med, mcfg)
+
+
+def m1_consistency_flags(dx, dy, has, mcfg):
+    """M1 item 3 flag for every frame with an estimate. History H3: every defined S_j, j < t, regardless of r,
+    bounds or consistency. Returns (flags, mask of frames with an estimate)."""
+    n = len(dx)
+    s = two_frame_sum(dx, has)
+    flags = np.zeros(n, bool)
+    h3 = []
+    for i in range(n):
+        if not has[i]:
+            continue
+        c = abs(dx[i]) <= mcfg["max_abs_dx"] and abs(dy[i]) <= mcfg["max_abs_dy"]
+        defined = not np.isnan(s[i])
+        if c and defined and len(h3) >= mcfg["consistency_min_history"]:
+            c = _m1_consistent(s[i], h3, mcfg)
+        flags[i] = c
+        if defined:
+            h3.append(float(s[i]))
+    return flags, np.asarray(has, bool).copy()
+
+
+def m1_tau_r(scenarios_raw, mcfg):
+    """Section 7 item 3 under M1: the frozen grid rule on M1 consistency flags, pooled over the fold's scenarios."""
+    rs, cons = [], []
+    for dx, dy, r, has in scenarios_raw:
+        flags, est = m1_consistency_flags(dx, dy, has, mcfg)
+        rs.extend(np.asarray(r)[est].tolist()); cons.extend(flags[est].tolist())
+    return grid_tau(rs, cons, mcfg)
+
+
+def m1_statuses(dx_raw, dy_raw, r_raw, has_est, tau_r, mcfg):
+    """Section 7 items 4 and 5 under M1. Same outputs and held/unknown rules as statuses()."""
+    n = len(dx_raw)
+    st = np.full(n, UNKNOWN, np.int8)
+    dxv = np.full(n, np.nan)
+    if tau_r is None:
+        return st, dxv
+
+    def basic(i):
+        return bool(has_est[i] and r_raw[i] >= tau_r and abs(dx_raw[i]) <= mcfg["max_abs_dx"]
+                    and abs(dy_raw[i]) <= mcfg["max_abs_dy"])
+
+    h4 = []
+    last_rel = None
+    for i in range(n):
+        t = i + 1
+        ok = False
+        if t > 1 and basic(i) and basic(i - 1):
+            s = float(dx_raw[i]) + float(dx_raw[i - 1])
+            ok = True
+            if len(h4) >= mcfg["consistency_min_history"]:
+                ok = _m1_consistent(s, h4, mcfg)
+        if ok:
+            st[i] = RELIABLE
+            dxv[i] = dx_raw[i]
+            h4.append(s)
+            last_rel = i
+        elif t > 1 and last_rel is not None and (i - last_rel) <= mcfg["hold_frames"]:
+            st[i] = HELD
+            dxv[i] = dxv[last_rel]
+    return st, dxv

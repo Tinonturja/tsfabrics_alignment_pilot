@@ -1,7 +1,7 @@
 # Decision log
 
 Each entry says what was decided, when, on what evidence, and whether any TSFabrics test-scenario detector output
-existed at the time. Up to and including DL-0016, none did: no anomaly map, score or metric has been computed on any
+existed at the time. Up to and including DL-0017, none did: no anomaly map, score or metric has been computed on any
 frame of a test scenario. The only detector outputs computed so far are validation-frame numbers of the Stage 2 smoke
 run (DL-0015).
 
@@ -23,6 +23,7 @@ run (DL-0015).
 | DL-0014 | 2026-10-05 | Stage 2 code written and unit-tested on CPU; implementation choices where the text is silent are listed below. No Kaggle run yet | CPU tests on synthetic data; a CPU smoke run of the runner on synthetic frames with random backbone weights | No |
 | DL-0015 | 2026-10-06 | **Stage 2 run 1 FAIL at phase A** (Kaggle notebook version 1, T4, files fingerprint `b918ed8b...`, report `51a270cc...`). A-G1 tau_r 0.00; A-G4 tau_r undefined (best 93.6% consistent at 0.75), so A-G4 is motion-invalid under the frozen rule; AT-06b A-G1 92 of 200. Smoke run (not the record): AT-04b maps rel up to 1.1e-5 against a 1e-6 limit. Diagnosis in `docs/stage2/STAGE2_RUN1_DIAGNOSIS.md`: G1 frame-interval alternation at the edge of the consistency band; I199 aliasing; squared-distance amplification. No code error found | Phase A record, smoke phases B and D, the 13 motion files (hashes match `phase_A.json`) | No |
 | DL-0016 | 2026-10-07 | **Amendment v1.2.2 adopted** by Tinon (`docs/stage2/AMENDMENT_v1.2.2_PROTOCOL.md`, SHA-256 `276fe9838efb6f6e334705b131d16c93f5d3c8d681b23fba57e15bb3fa25a704`). A post-Stage-2 diagnostic amendment, not preregistered: motion candidate M1 with band (b) B(M) = max(8, 0.2 x \|M\| / 2); AT-04b, AT-03 and AT-06b revised. Text written as draft, audited (`AMENDMENT_v1.2.2_AUDIT.md`, blockers B1 to B6, changes D1 to D9), then adopted. Hashed before any calibration or real-data computation under M1. Calibration implementation notes below | Draft, audit, diagnosis; no M1 flag, status or tau_r computed on any data | No |
+| DL-0017 | 2026-10-07 | **M1 synthetic calibration FAIL; M1 not adopted.** 16 of 18 criteria pass. Failed: criterion 1, F6 item 4 (98.25% clean frames reliable, limit 99%); criterion 3, F4 item 4 (3.01 points below the frozen rule, limit 1). Under v1.2.2 the frozen motion rule stays, A-G4 stays motion-invalid, and no second candidate is tried. Result `calibration/v1_2_2_m1/result.json` (`7a82d069...e6ff`), code `d1c31f4` committed before the run | `calibration/v1_2_2_m1/REPORT.md`; synthetic data only | No |
 
 ## DL-0009: implementation choices (none changes a frozen rule)
 

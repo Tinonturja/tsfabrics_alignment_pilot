@@ -1,0 +1,258 @@
+{
+ "what": "v1.2.2 section 4 synthetic calibration of M1",
+ "date_utc": "2026-10-06T22:35:38+00:00",
+ "protocol_sha256": "276fe9838efb6f6e334705b131d16c93f5d3c8d681b23fba57e15bb3fa25a704",
+ "config_sha256": "d0f1d9002e3d4648a13a7e50dd231661ceb1598aa0fdd3914e3be93f7f75797b",
+ "code_sha256": {
+  "calibration/v1_2_2_m1/calibrate_m1.py": "a04991aded1fdef987a90369c49562c50c35695809c1caf4e53c22ed87199f70",
+  "src/tsfpilot/motion.py": "dc3cfec4c894ebed9d44e17477818dbac312293aec77fbdb5cf365daaa425b99"
+ },
+ "python": "3.11.15",
+ "numpy": "2.4.4",
+ "seed": 20261007,
+ "frames": 2000,
+ "replicates": 200,
+ "warmup_last_frame": 20,
+ "verdict": "FAIL",
+ "criteria": [
+  {
+   "criterion": "1",
+   "family": "F1 steady",
+   "measure": "item 3 clean consistent",
+   "value": 1.0,
+   "limit": 0.99,
+   "pass": true
+  },
+  {
+   "criterion": "1",
+   "family": "F1 steady",
+   "measure": "item 4 clean reliable",
+   "value": 1.0,
+   "limit": 0.99,
+   "pass": true
+  },
+  {
+   "criterion": "1",
+   "family": "F2 alternating",
+   "measure": "item 3 clean consistent",
+   "value": 1.0,
+   "limit": 0.99,
+   "pass": true
+  },
+  {
+   "criterion": "1",
+   "family": "F2 alternating",
+   "measure": "item 4 clean reliable",
+   "value": 1.0,
+   "limit": 0.99,
+   "pass": true
+  },
+  {
+   "criterion": "1",
+   "family": "F6 slow + drops",
+   "measure": "item 3 clean consistent",
+   "value": 0.9914668125514552,
+   "limit": 0.99,
+   "pass": true
+  },
+  {
+   "criterion": "1",
+   "family": "F6 slow + drops",
+   "measure": "item 4 clean reliable",
+   "value": 0.9825018704897063,
+   "limit": 0.99,
+   "pass": false
+  },
+  {
+   "criterion": "2",
+   "family": "F4 steady + failures",
+   "measure": "item 3 event inconsistent",
+   "value": 0.9625789113404153,
+   "limit": 0.9,
+   "pass": true
+  },
+  {
+   "criterion": "2",
+   "family": "F4 steady + failures",
+   "measure": "item 4 event not reliable",
+   "value": 0.9605760210937302,
+   "limit": 0.9,
+   "pass": true
+  },
+  {
+   "criterion": "2",
+   "family": "F5 alternating + failures",
+   "measure": "item 3 event inconsistent",
+   "value": 0.9602315821408707,
+   "limit": 0.9,
+   "pass": true
+  },
+  {
+   "criterion": "2",
+   "family": "F5 alternating + failures",
+   "measure": "item 4 event not reliable",
+   "value": 0.9571471911816757,
+   "limit": 0.9,
+   "pass": true
+  },
+  {
+   "criterion": "3",
+   "family": "F1 steady",
+   "measure": "item 3 clean: M1 minus frozen",
+   "value": 0.0,
+   "limit": -0.01,
+   "pass": true
+  },
+  {
+   "criterion": "3",
+   "family": "F1 steady",
+   "measure": "item 4 clean: M1 minus frozen",
+   "value": 0.0,
+   "limit": -0.01,
+   "pass": true
+  },
+  {
+   "criterion": "3",
+   "family": "F4 steady + failures",
+   "measure": "item 3 clean: M1 minus frozen",
+   "value": -0.002912436884222068,
+   "limit": -0.01,
+   "pass": true
+  },
+  {
+   "criterion": "3",
+   "family": "F4 steady + failures",
+   "measure": "item 4 clean: M1 minus frozen",
+   "value": -0.030074415098571193,
+   "limit": -0.01,
+   "pass": false
+  },
+  {
+   "criterion": "3",
+   "family": "F4 steady + failures",
+   "measure": "item 3 event: M1 minus frozen",
+   "value": -0.00730167583601653,
+   "limit": -0.01,
+   "pass": true
+  },
+  {
+   "criterion": "3",
+   "family": "F4 steady + failures",
+   "measure": "item 4 event: M1 minus frozen",
+   "value": -0.008772152219658748,
+   "limit": -0.01,
+   "pass": true
+  }
+ ],
+ "pooled_counts": {
+  "F1 steady": {
+   "frozen": {
+    "clean_n": 396000,
+    "clean_consistent": 396000,
+    "clean_reliable": 396000,
+    "event_n": 0,
+    "event_inconsistent": 0,
+    "event_not_reliable": 0
+   },
+   "m1": {
+    "clean_n": 396000,
+    "clean_consistent": 396000,
+    "clean_reliable": 396000,
+    "event_n": 0,
+    "event_inconsistent": 0,
+    "event_not_reliable": 0
+   }
+  },
+  "F2 alternating": {
+   "frozen": {
+    "clean_n": 396000,
+    "clean_consistent": 384192,
+    "clean_reliable": 381228,
+    "event_n": 0,
+    "event_inconsistent": 0,
+    "event_not_reliable": 0
+   },
+   "m1": {
+    "clean_n": 396000,
+    "clean_consistent": 396000,
+    "clean_reliable": 396000,
+    "event_n": 0,
+    "event_inconsistent": 0,
+    "event_not_reliable": 0
+   }
+  },
+  "F3 alternating + drops": {
+   "frozen": {
+    "clean_n": 383957,
+    "clean_consistent": 372497,
+    "clean_reliable": 370153,
+    "event_n": 6058,
+    "event_inconsistent": 6058,
+    "event_not_reliable": 6058
+   },
+   "m1": {
+    "clean_n": 383957,
+    "clean_consistent": 383956,
+    "clean_reliable": 383957,
+    "event_n": 6058,
+    "event_inconsistent": 6032,
+    "event_not_reliable": 6032
+   }
+  },
+  "F4 steady + failures": {
+   "frozen": {
+    "clean_n": 321037,
+    "clean_consistent": 321037,
+    "clean_reliable": 319422,
+    "event_n": 39443,
+    "event_inconsistent": 38255,
+    "event_not_reliable": 38234
+   },
+   "m1": {
+    "clean_n": 321037,
+    "clean_consistent": 320102,
+    "clean_reliable": 309767,
+    "event_n": 39443,
+    "event_inconsistent": 37967,
+    "event_not_reliable": 37888
+   }
+  },
+  "F5 alternating + failures": {
+   "frozen": {
+    "clean_n": 320914,
+    "clean_consistent": 307204,
+    "clean_reliable": 307662,
+    "event_n": 39554,
+    "event_inconsistent": 38299,
+    "event_not_reliable": 38312
+   },
+   "m1": {
+    "clean_n": 320914,
+    "clean_consistent": 320044,
+    "clean_reliable": 309753,
+    "event_n": 39554,
+    "event_inconsistent": 37981,
+    "event_not_reliable": 37859
+   }
+  },
+  "F6 slow + drops": {
+   "frozen": {
+    "clean_n": 372897,
+    "clean_consistent": 372857,
+    "clean_reliable": 372858,
+    "event_n": 11726,
+    "event_inconsistent": 11726,
+    "event_not_reliable": 11726
+   },
+   "m1": {
+    "clean_n": 372897,
+    "clean_consistent": 369715,
+    "clean_reliable": 366372,
+    "event_n": 11726,
+    "event_inconsistent": 11726,
+    "event_not_reliable": 11662
+   }
+  }
+ },
+ "not_gated": "F3 is reported, not gated; frozen-rule proportions are reported for comparison"
+}

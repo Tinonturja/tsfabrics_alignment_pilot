@@ -40,7 +40,7 @@ from tsfpilot.manifest import environment, git_state          # noqa: E402
 
 AMENDMENT_V122 = "docs/stage2/AMENDMENT_v1.2.2_PROTOCOL.md"
 STAGE1_REPORT = "audit/stage1_kaggle_v1_2_2/stage1_report.json"
-STAGE1_REPORT_SHA256 = None        # pinned from the v1.2.2 Stage 1 Kaggle record before the Stage 2 rerun
+STAGE1_REPORT_SHA256 = "eb34435baf4439b69291bffb20a4a984bffb19a19254eb5a88bb3568519c8461"   # DL-0022
 SMOKE = {"bank_frames": 4, "validation_last": 12, "motion_frames": 60}
 HASHED = ["src/tsfpilot/*.py", "scripts/*.py", "tests/*.py", "tests/fixtures/*.py", "notebooks/*.ipynb",
           "third_party/patchcore/*", "third_party/patchcore/patchcore/*.py", "data/frozen/*", "configs/*.yaml",

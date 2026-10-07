@@ -14,7 +14,7 @@ it is not in the code.
 | Stage | What | Status |
 |---|---|---|
 | Stage 1 | Synthetic data, reference scripts, frozen CSVs, label files. CPU. No images | **PASS** on Kaggle, 2026-10-04: 53 passed, 0 failed, 0 skipped (record in `audit/stage1_kaggle/`, decision log DL-0012) |
-| Stage 2 | Bank and validation frames only: features, coresets, validation constants, tau_r. GPU | Run 1 failed at phase A (DL-0015). Amendment v1.2.2 adopted (DL-0016); its motion candidate failed calibration (DL-0017); C2 to C4 implemented (DL-0018). Next: Stage 1 rerun, then Stage 2 rerun |
+| Stage 2 | Bank and validation frames only: features, coresets, validation constants, tau_r. GPU | Run 1 failed at phase A (DL-0015). Amendment v1.2.2 adopted (DL-0016); its motion candidate failed calibration (DL-0017); C2 to C4 implemented (DL-0018). Stage 1 v1.2.2 PASS (DL-0022). Next: Stage 2 rerun; Stage 3 will not be run (DL-0023) |
 | Stage 3 | One locked run on the test folds | Not yet implemented |
 
 ## Layout

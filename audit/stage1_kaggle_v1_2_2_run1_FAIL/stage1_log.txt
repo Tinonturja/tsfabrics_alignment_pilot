@@ -1,0 +1,25 @@
+........................................................................ [ 50%]
+...F...................................................................  [100%]
+=================================== FAILURES ===================================
+____________________ test_chunking_does_not_change_results _____________________
+
+    def test_chunking_does_not_change_results():
+        rng = np.random.default_rng(1)
+        b = rng.standard_normal((700, 32)).astype(np.float32)
+        q = torch.from_numpy(rng.standard_normal((333, 32)).astype(np.float32))
+        cs = S.Coreset(b, "cpu")
+>       assert torch.equal(S.nearest_sq_dist(q, cs, chunk=50), S.nearest_sq_dist(q, cs, chunk=333))
+E       assert False
+E        +  where False = <built-in method equal of type object at 0x7f2405381ce0>(tensor([25.8920, 20.9257, 39.8941, 27.8295, 19.0088, 37.8097, 26.1309, 30.5459,\n        28.1499, 26.6818, 26.9844, 27....1, 26.1715, 28.1786, 30.5121, 28.3465, 30.8325, 21.5073, 28.8519,\n        31.9141, 33.3800, 23.1109, 32.8931, 21.9500]), tensor([25.8920, 20.9257, 39.8941, 27.8295, 19.0088, 37.8097, 26.1309, 30.5459,\n        28.1499, 26.6818, 26.9844, 27....1, 26.1715, 28.1786, 30.5121, 28.3465, 30.8325, 21.5073, 28.8519,\n        31.9141, 33.3800, 23.1109, 32.8931, 21.9500]))
+E        +    where <built-in method equal of type object at 0x7f2405381ce0> = torch.equal
+E        +    and   tensor([25.8920, 20.9257, 39.8941, 27.8295, 19.0088, 37.8097, 26.1309, 30.5459,\n        28.1499, 26.6818, 26.9844, 27....1, 26.1715, 28.1786, 30.5121, 28.3465, 30.8325, 21.5073, 28.8519,\n        31.9141, 33.3800, 23.1109, 32.8931, 21.9500]) = <function nearest_sq_dist at 0x7f23c31e0400>(tensor([[-0.4944,  0.3279,  0.3589,  ...,  1.0944, -1.8230, -1.2704],\n        [-0.0355,  0.0639,  0.4465,  ...,  0.555...0010,  1.9771,  ...,  1.3570, -0.0464,  0.9709],\n        [-0.5590, -0.4520, -0.9997,  ...,  1.1253,  0.2861,  0.0547]]), <tsfpilot.scoring.Coreset object at 0x7f23b4003ed0>, chunk=50)
+E        +      where <function nearest_sq_dist at 0x7f23c31e0400> = S.nearest_sq_dist
+E        +    and   tensor([25.8920, 20.9257, 39.8941, 27.8295, 19.0088, 37.8097, 26.1309, 30.5459,\n        28.1499, 26.6818, 26.9844, 27....1, 26.1715, 28.1786, 30.5121, 28.3465, 30.8325, 21.5073, 28.8519,\n        31.9141, 33.3800, 23.1109, 32.8931, 21.9500]) = <function nearest_sq_dist at 0x7f23c31e0400>(tensor([[-0.4944,  0.3279,  0.3589,  ...,  1.0944, -1.8230, -1.2704],\n        [-0.0355,  0.0639,  0.4465,  ...,  0.555...0010,  1.9771,  ...,  1.3570, -0.0464,  0.9709],\n        [-0.5590, -0.4520, -0.9997,  ...,  1.1253,  0.2861,  0.0547]]), <tsfpilot.scoring.Coreset object at 0x7f23b4003ed0>, chunk=333)
+E        +      where <function nearest_sq_dist at 0x7f23c31e0400> = S.nearest_sq_dist
+
+tests/test_stage2_scoring.py:34: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_stage2_scoring.py::test_chunking_does_not_change_results - ...
+1 failed, 142 passed in 945.72s (0:15:45)
+
+Stage 1 FAIL: {'passed': 142, 'failed': 1, 'skipped': 0}  ->  /kaggle/working/repo/audit/stage1_report.json  sha256 94a78aa9f51b2ffcc0784b988cca3a781db917d026fd2da5410d4c807b68fded

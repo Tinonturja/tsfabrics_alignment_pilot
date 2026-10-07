@@ -1,4 +1,5 @@
 """Stage 2 (section 24): detector, coresets, validation constants, tau_r, and AT-01 to AT-04b plus AT-06b.
+Run under amendment v1.2.2 (DL-0016, DL-0017): frozen motion rule; AT-03, AT-04b and AT-06b as in its C2 to C4.
 
 Allowed data: bank frames of both folds, validation frames (T1_S164_I199_1, frames 1 to 1,212), and motion on the
 training-side scenarios of each fold. No test-scenario frame is scored; src/tsfpilot/access.py enforces this.
@@ -6,7 +7,7 @@ training-side scenarios of each fold. No test-scenario frame is scored; src/tsfp
 Phases. Each writes phase_<X>.json into --out; a finished phase is skipped on rerun; the run stops at the first
 phase whose acceptance test fails.
   0  CPU  Stage 2 unit tests (pytest) as a pre-flight
-  A  CPU  raw motion on every tau_r scenario; tau_r per fold; validation statuses; AT-06b
+  A  CPU  raw motion on every tau_r scenario; tau_r per fold; validation statuses; AT-06b on I192 and I193
   B  GPU  layer-by-layer trace; AT-02 against the official PatchCore._embed on validation frames 1 to 5
   C  GPU  bank features per fold; coresets for seeds 0, 1, 2; seed 0 rebuilt once as a reproducibility check
   D  GPU  validation maps for all six coresets in one pass; AT-01, AT-03, AT-04a, AT-04b
@@ -37,13 +38,15 @@ from tsfpilot import stage2_motion as SM                      # noqa: E402
 from tsfpilot.frames import find_root                         # noqa: E402
 from tsfpilot.manifest import environment, git_state          # noqa: E402
 
-STAGE1_REPORT = "audit/stage1_kaggle/stage1_report.json"
-STAGE1_REPORT_SHA256 = "41ca8d47daa5b96cdfba15c963d1b86988c071591af6c98850c4e3c229c9d911"   # DL-0012
+AMENDMENT_V122 = "docs/stage2/AMENDMENT_v1.2.2_PROTOCOL.md"
+STAGE1_REPORT = "audit/stage1_kaggle_v1_2_2/stage1_report.json"
+STAGE1_REPORT_SHA256 = None        # pinned from the v1.2.2 Stage 1 Kaggle record before the Stage 2 rerun
 SMOKE = {"bank_frames": 4, "validation_last": 12, "motion_frames": 60}
 HASHED = ["src/tsfpilot/*.py", "scripts/*.py", "tests/*.py", "tests/fixtures/*.py", "notebooks/*.ipynb",
           "third_party/patchcore/*", "third_party/patchcore/patchcore/*.py", "data/frozen/*", "configs/*.yaml",
           "docs/stage2/*.md", "PREREGISTRATION.md", "PREREGISTRATION_AMENDMENT_v1.2.1.md", "requirements.txt",
-          "pyproject.toml", "audit/stage1_kaggle/bank_frames_v1_2_1.csv"]
+          "requirements-stage2.txt", "pyproject.toml", "audit/stage1_kaggle/bank_frames_v1_2_1.csv",
+          "audit/stage1_kaggle_v1_2_2/*", "calibration/v1_2_2_m1/*"]
 
 
 def now():
@@ -79,11 +82,15 @@ def preconditions(cfg):
     rec = {"config_sha256": cfg["_sha256"],
            "preregistration_sha256": C.file_sha256(C.repo_path("PREREGISTRATION.md")),
            "amendment_sha256": C.file_sha256(C.repo_path("PREREGISTRATION_AMENDMENT_v1.2.1.md")),
+           "amendment_v1_2_2_sha256": C.file_sha256(C.repo_path(AMENDMENT_V122)),
+           "config_version": cfg.get("_version"), "motion_rule": cfg["motion"].get("rule"),
            "git": git_state(), "problems": []}
     if rec["preregistration_sha256"] != cfg["spec"]["preregistration_sha256"]:
         rec["problems"].append("PREREGISTRATION.md hash differs from the config")
     if rec["amendment_sha256"] != cfg["spec"]["amendment_v1_2_1_sha256"]:
         rec["problems"].append("amendment hash differs from the config")
+    if cfg.get("_version") != "v1.2.2" or rec["amendment_v1_2_2_sha256"] != cfg["spec"]["amendment_v1_2_2_sha256"]:
+        rec["problems"].append("the configuration is not the v1.2.2 one, or the v1.2.2 amendment hash differs")
     try:
         access.load_bank_record(cfg)
         rec["bank_record_sha256"] = access.BANK_RECORD_SHA256
@@ -94,8 +101,15 @@ def preconditions(cfg):
         rec["problems"].append(f"{STAGE1_REPORT} is missing")
     else:
         rec["stage1_report_sha256"] = C.file_sha256(s1)
-        if rec["stage1_report_sha256"] != STAGE1_REPORT_SHA256 or json.load(open(s1)).get("result") != "PASS":
+        s1rep = json.load(open(s1))
+        if STAGE1_REPORT_SHA256 is None:
+            rec["problems"].append("the v1.2.2 Stage 1 record is not pinned yet (STAGE1_REPORT_SHA256)")
+        elif rec["stage1_report_sha256"] != STAGE1_REPORT_SHA256 or s1rep.get("result") != "PASS":
             rec["problems"].append("the Stage 1 record does not verify (hash or result)")
+        if s1rep.get("config_sha256") != cfg["_sha256"]:
+            rec["problems"].append("the Stage 1 record was made with a different configuration")
+        if (s1rep.get("bank_frames_csv") or {}).get("sha256") != access.BANK_RECORD_SHA256:
+            rec["problems"].append("the Stage 1 record's bank frames differ from the DL-0012 bank")
     return rec
 
 
@@ -124,7 +138,7 @@ def phase_a(ctx):
         counts = {name: int(np.sum(vm["status"] == code)) for name, code in
                   (("reliable", 2), ("held", 1), ("unknown", 0))}
         folds[fold] = {"tau_r": tr, "validation_status_counts": counts,
-                       "AT-06b": AT.at06b(gate, vm, fold, tr["tau_r"])}
+                       "AT-06b": AT.at06b(gate, raw, fold, tr["tau_r"], cfg["motion"], mdir)}
     applicable = [f["AT-06b"]["pass"] for f in folds.values() if f["AT-06b"]["applicable"]]
     return {"phase": "A", "folds": folds, "frames_without_estimate": SM.frames_without_estimate(raw),
             "motion_files": {os.path.basename(p): C.file_sha256(p) for p in sorted(glob.glob(mdir + "/*.npz"))},
@@ -362,7 +376,7 @@ def main():
     failed = any(not p["pass"] for p in phases.values())
     result = "FAIL" if failed else ("SMOKE" if a.smoke else ("PASS" if complete else "INCOMPLETE"))
     hashes, fingerprint = source_hashes()
-    report = {"stage": 2, "spec": "Research Gate v1.2 + v1.2.1; clarifications DL-0013", "result": result,
+    report = {"stage": 2, "spec": "Research Gate v1.2 + v1.2.1 + v1.2.2 (frozen motion rule); DL-0013", "result": result,
               "smoke": a.smoke, "started_utc": started, "finished_utc": now(), "preconditions": pre,
               "acceptance": acceptance, "phases": {n: {k: v for k, v in p.items() if k != "reads"}
                                                    for n, p in phases.items()},

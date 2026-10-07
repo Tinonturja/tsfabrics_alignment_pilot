@@ -10,7 +10,6 @@ from tsfpilot import acceptance2 as AT
 from tsfpilot import stage2_motion as SM
 from tsfpilot import validation as V
 from tsfpilot.events import runs_direct
-from tsfpilot.motion import HELD, RELIABLE, UNKNOWN
 
 
 def test_map_constants_on_known_maps():
@@ -78,19 +77,6 @@ def test_tau_r_record_counts_agree_with_the_rule():
         assert set(rec["scenarios"]).isdisjoint(CFG["folds"][fold]["test"])
 
 
-def test_at06b_frame_selection():
-    st = np.full(600, RELIABLE, np.int8)
-    st[0] = UNKNOWN
-    st[50] = HELD
-    frames, rule = AT.at06b_frames(st)
-    assert rule == "consecutive run" and frames == list(range(51, 251))
-    st2 = np.where(np.arange(600) % 3 == 0, HELD, RELIABLE).astype(np.int8)
-    frames2, rule2 = AT.at06b_frames(st2)
-    assert rule2.startswith("first reliable") and len(frames2) == 200 and frames2[0] == 1
-    frames3, _ = AT.at06b_frames(np.full(150, RELIABLE, np.int8))
-    assert frames3 is None
-
-
 def textured_frames(dx_px, n=3, seed=0):
     """Frames of a smooth random texture moving by dx_px per frame: I_t(x) = I_(t-1)(x - dx)."""
     rng = np.random.default_rng(seed)
@@ -121,6 +107,6 @@ def test_section_23_numbers_match_the_preregistration():
     assert "2,000 validation queries" in row["AT-03"] and "<= 1e-4" in row["AT-03"]
     assert AT.AT03_QUERIES == 2000 and AT.AT03_REL == 1e-4 and 8000 // AT.AT03_STRIDE == AT.AT03_QUERIES
     assert "10 validation frames" in row["AT-04a"] and "bit-identical" in row["AT-04a"]
-    assert "rel <= 1e-6" in row["AT-04b"] and AT.AT04B_REL == 1e-6 and len(AT.AT04_FRAMES) == 10
+    assert "rel <= 1e-6" in row["AT-04b"] and AT.AT04B_FEATURES_REL == 1e-6 and len(AT.AT04_FRAMES) == 10
     assert "200 consecutive reliable" in row["AT-06b"] and ">= 95% of pairs" in row["AT-06b"]
     assert AT.AT06B_PAIRS == 200 and AT.AT06B_MIN_HOLDING == 190

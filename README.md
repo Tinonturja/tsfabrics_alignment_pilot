@@ -14,7 +14,7 @@ it is not in the code.
 | Stage | What | Status |
 |---|---|---|
 | Stage 1 | Synthetic data, reference scripts, frozen CSVs, label files. CPU. No images | **PASS** on Kaggle, 2026-10-04: 53 passed, 0 failed, 0 skipped (record in `audit/stage1_kaggle/`, decision log DL-0012) |
-| Stage 2 | Bank and validation frames only: features, coresets, validation constants, tau_r. GPU | Implemented and unit-tested on CPU (2026-10-05, DL-0013, DL-0014); Kaggle run pending |
+| Stage 2 | Bank and validation frames only: features, coresets, validation constants, tau_r. GPU | Run 1 failed at phase A (DL-0015). Amendment v1.2.2 adopted (DL-0016); its motion candidate failed calibration (DL-0017); C2 to C4 implemented (DL-0018). Next: Stage 1 rerun, then Stage 2 rerun |
 | Stage 3 | One locked run on the test folds | Not yet implemented |
 
 ## Layout
@@ -49,7 +49,9 @@ python scripts/run_stage1.py --allow-no-dataset
 ```
 
 On Kaggle (the record): attach the TSFabrics dataset and this repository, open `notebooks/stage1_kaggle.ipynb`,
-run all cells. The result must be `PASS` before Stage 2 starts.
+run all cells. The result must be `PASS` before Stage 2 starts. Under amendment v1.2.2 a new Stage 1 record is
+made with `configs/pilot_v1_2_2.yaml`; it goes in `audit/stage1_kaggle_v1_2_2/` and its hash is pinned in
+`scripts/run_stage2.py` before the Stage 2 rerun.
 
 ## Run Stage 2
 

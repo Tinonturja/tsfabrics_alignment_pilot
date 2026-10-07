@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.0 (2026-10-07): Stage 2 run 1 diagnosis and amendment v1.2.2
+
+- Stage 2 run 1 on Kaggle failed at phase A (DL-0015); diagnosis in `docs/stage2/STAGE2_RUN1_DIAGNOSIS.md`.
+- Amendment v1.2.2 drafted, audited and adopted (DL-0016). It is a post-Stage-2 diagnostic amendment, not
+  preregistered.
+- Motion candidate M1 and its synthetic calibration (`calibration/v1_2_2_m1/`): FAIL, M1 not adopted (DL-0017).
+  The M1 functions stay in `motion.py` for the record; no stage uses them.
+- Protocol fallback (DL-0018): `configs/pilot_v1_2_2.yaml` is the default configuration (frozen motion rule);
+  AT-03 fallback bound, AT-04b features and maps criteria, AT-06b on `T1_S164_I192_1` and `T1_S164_I193_1` with a
+  selection recorded before any image is read. Stage 1 and Stage 2 notebooks updated; the Stage 2 runner needs
+  the v1.2.2 Stage 1 record before it starts.
+
 ## 0.2.0 (2026-10-05): Stage 2 implementation
 
 - Stage 2 implementation audit (`docs/stage2/STAGE2_IMPLEMENTATION_AUDIT.md`) and clarifications DL-0013:

@@ -5,7 +5,8 @@ Every image Stage 2 reads goes through FrameGate, and every request names its pu
   bank        the 300 (scenario, frame) pairs per fold of the Stage 1 bank record (DL-0012). Features only:
               these frames are never scored, displayed or summarised.
   validation  T1_S164_I199_1, frames 1 to 1,212. The only frames that may be scored in Stage 2.
-  motion      every frame of the training-side scenarios used for tau_r. Phase correlation only.
+  motion      every frame of the training-side scenarios used for tau_r. Phase correlation, and the AT-06b
+              warp-direction check on T1_S164_I192_1 and T1_S164_I193_1 (amendment v1.2.2, C4). Never the detector.
 
 Anything outside these lists raises ForbiddenFrame. Labels can be read for the validation scenario only.
 The gate keeps a log of what was read, which the Stage 2 report checks against the allow-lists.
@@ -158,12 +159,14 @@ class FrameGate:
             self.read_log[("motion", fold, scenario)] += 1
             yield read_gray(p)
 
-    def validation_image(self, frame):
-        """One validation frame as uint8, for AT-06b (motion and images of the validation scenario)."""
-        self.check("validation", None, self.val_scenario, frame)
-        self.read_log[("validation", None, self.val_scenario)] += 1
-        self._read_keys.add(("validation", None, self.val_scenario, frame))
-        return read_gray(self._path(self.val_scenario, frame))
+    def motion_image(self, fold, scenario, frame):
+        """One frame of a tau_r scenario as uint8, for the AT-06b warp check (v1.2.2 C4). Returned as a bare array,
+        never as a FrameBatch, so it cannot reach the scorer."""
+        self.check("motion", fold, scenario)
+        frame = int(frame)
+        self.read_log[("motion", fold, scenario)] += 1
+        self._read_keys.add(("motion", fold, scenario, frame))
+        return read_gray(self._path(scenario, frame))
 
     def validation_labels(self):
         return load_labels(self.root, self.val_scenario)

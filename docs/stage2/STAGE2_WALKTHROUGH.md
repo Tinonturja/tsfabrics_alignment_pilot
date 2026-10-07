@@ -139,7 +139,7 @@ height r says how clear the answer is. tau_r is the smallest r on a 0.01 grid at
 
 **What can go wrong.** Including the fold's own test group (the gate forbids it); confusing raw estimates with
 statuses. `T1_S164_I199_1` is noisy (forensic table: dx IQR 200 px, median response 0.50), so many of its frames may
-be held or unknown. That matters for AT-06b, not for any decision.
+be held or unknown. Since v1.2.2 it is not used by AT-06b, and it never enters a decision.
 
 **Tests.** `tests/test_stage2_validation.py::test_tau_r_record_counts_agree_with_the_rule` and the access tests.
 
@@ -168,14 +168,23 @@ refused; the threshold rule agrees with a brute-force definition on 20 random ti
 |---|---|---|
 | AT-01 | Are the shapes right at full resolution? | layer2 (1, 512, 80, 100), layer3 (1, 1024, 40, 50), features (8000, 1024), map (80, 100) |
 | AT-02 | Is our feature path the official PatchCore path? | max rel <= 1e-5 against `PatchCore._embed`, frames 1 to 5 |
-| AT-03 | Is the float32 distance accurate? | max error <= 1e-4 of the largest float64 distance, 2,000 cells of frame 1, per fold |
+| AT-03 | Is the float32 distance accurate? | max error <= 1e-4 of the largest float64 distance, 2,000 cells of frame 1, per fold; if that fails, every query within the float32 rounding bound (v1.2.2 C3) |
 | AT-04a | Is the run deterministic? | frames 1 to 10 twice, identical batches: bit-identical maps, all six coresets |
-| AT-04b | Does the batch size matter? | batch 1 vs batch 4: rel <= 1e-6 |
-| AT-06b | Does the warp point the right way on real frames? | per fold, the U-warp beats the -U warp on >= 190 of 200 pairs |
+| AT-04b | Does the batch size matter? | batch 1 vs batch 4: features rel <= 1e-6 and maps rel <= 1e-4 (v1.2.2 C2) |
+| AT-06b | Does the warp point the right way on real frames? | per fold, on T1_S164_I192_1 then T1_S164_I193_1, the U-warp beats the -U warp on >= 190 of 200 pairs (v1.2.2 C4) |
 
 AT-06b in plain words: average each frame to 80 x 100, shift the previous frame by the measured motion, and check
 that it matches the current frame better than shifting it the other way. If the sign convention were flipped
 anywhere, V4 would be averaging the wrong fabric and this test would fail.
+
+**What changed in v1.2.2 and why.** Run 1 showed three tests that could not work as written (DL-0015). AT-04b's
+map limit of 1e-6 is below what float32 can deliver for a squared distance: a 1e-7 difference in the features is
+multiplied by about 2 x ||q||^2 / distance. AT-03 has the same weakness at full coreset size, so it gained a fallback
+that compares each error with the worst-case float32 rounding bound. That bound is loose: it catches a wrong
+computation, not a slightly imprecise one. AT-06b moved from the validation scenario, whose fabric pattern repeats
+about every 85 px and makes the warp direction ambiguous, to the two G2 scenarios with clean motion. The pairs are
+chosen from the motion statuses and written to a file before any image is opened, so the choice cannot depend on
+what the images show.
 
 ## 8. The runner (`scripts/run_stage2.py`) and the notebook
 

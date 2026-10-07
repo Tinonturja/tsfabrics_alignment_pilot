@@ -1,7 +1,7 @@
 # Decision log
 
 Each entry says what was decided, when, on what evidence, and whether any TSFabrics test-scenario detector output
-existed at the time. Up to and including DL-0017, none did: no anomaly map, score or metric has been computed on any
+existed at the time. Up to and including DL-0018, none did: no anomaly map, score or metric has been computed on any
 frame of a test scenario. The only detector outputs computed so far are validation-frame numbers of the Stage 2 smoke
 run (DL-0015).
 
@@ -24,6 +24,7 @@ run (DL-0015).
 | DL-0015 | 2026-10-06 | **Stage 2 run 1 FAIL at phase A** (Kaggle notebook version 1, T4, files fingerprint `b918ed8b...`, report `51a270cc...`). A-G1 tau_r 0.00; A-G4 tau_r undefined (best 93.6% consistent at 0.75), so A-G4 is motion-invalid under the frozen rule; AT-06b A-G1 92 of 200. Smoke run (not the record): AT-04b maps rel up to 1.1e-5 against a 1e-6 limit. Diagnosis in `docs/stage2/STAGE2_RUN1_DIAGNOSIS.md`: G1 frame-interval alternation at the edge of the consistency band; I199 aliasing; squared-distance amplification. No code error found | Phase A record, smoke phases B and D, the 13 motion files (hashes match `phase_A.json`) | No |
 | DL-0016 | 2026-10-07 | **Amendment v1.2.2 adopted** by Tinon (`docs/stage2/AMENDMENT_v1.2.2_PROTOCOL.md`, SHA-256 `276fe9838efb6f6e334705b131d16c93f5d3c8d681b23fba57e15bb3fa25a704`). A post-Stage-2 diagnostic amendment, not preregistered: motion candidate M1 with band (b) B(M) = max(8, 0.2 x \|M\| / 2); AT-04b, AT-03 and AT-06b revised. Text written as draft, audited (`AMENDMENT_v1.2.2_AUDIT.md`, blockers B1 to B6, changes D1 to D9), then adopted. Hashed before any calibration or real-data computation under M1. Calibration implementation notes below | Draft, audit, diagnosis; no M1 flag, status or tau_r computed on any data | No |
 | DL-0017 | 2026-10-07 | **M1 synthetic calibration FAIL; M1 not adopted.** 16 of 18 criteria pass. Failed: criterion 1, F6 item 4 (98.25% clean frames reliable, limit 99%); criterion 3, F4 item 4 (3.01 points below the frozen rule, limit 1). Under v1.2.2 the frozen motion rule stays, A-G4 stays motion-invalid, and no second candidate is tried. Result `calibration/v1_2_2_m1/result.json` (`7a82d069...e6ff`), code `d1c31f4` committed before the run | `calibration/v1_2_2_m1/REPORT.md`; synthetic data only | No |
+| DL-0018 | 2026-10-07 | **Protocol fallback taken** (Tinon's choice after DL-0017): v1.2.2 section 5 steps 1 to 4 proceed with the frozen motion rule and the C2 to C4 changes. `configs/pilot_v1_2_2.yaml` (motion.rule frozen, stage2_acceptance section) becomes the default configuration; AT-03 fallback, AT-04b two-part criterion and AT-06b on I192/I193 implemented; Stage 1 and Stage 2 notebooks updated. With A-G4 motion-invalid, any Stage 3 seed-0 outcome can only be B\* (final I), or M or G if A-G1 is also invalid (section 22). Stage 3 is not authorised yet. Implementation notes below | CPU tests; a CPU smoke run of the Stage 2 runner on synthetic frames with random weights (not a record) | No |
 
 ## DL-0009: implementation choices (none changes a frozen rule)
 
@@ -62,6 +63,19 @@ run (DL-0015).
 |---|---|---|---|---|
 | V-1 | v1.2.2 section 4, frozen rule | `motion.tau_r` returns only tau, not per-pair flags. `motion.frozen_consistency_flags` runs the same loop and calls the frozen `_consistent`; a test shows that the tau from these flags, with the frozen grid rule, equals `motion.tau_r` on random inputs. `motion.tau_r` and `motion.statuses` are unchanged | Section 4 needs the item 3 flag per frame; the test ties it to the frozen function | No |
 | V-2 | v1.2.2 section 4, sets | "Frames 2 to 20 are warm-up and excluded for both rules" applies to every set, including event frames | The sentence is not limited to clean frames | Only which frames are counted |
+
+## DL-0018: v1.2.2 implementation notes (none changes a rule of the adopted text)
+
+| # | Where | Choice | Why it is allowed | Can it change a result? |
+|---|---|---|---|---|
+| V-3 | C3 (AT-03) | The fallback bound is computed and recorded for every run, also when the primary criterion passes; it decides only when the primary fails | "Both results are recorded" | No |
+| V-4 | C3 (AT-03) | b* is found with an explicit first-index search over the float64 distances (torch's `min` does not promise the first index on ties) | The text fixes "smallest-index" | No |
+| V-5 | C2 (AT-04b) | The batch-4 maps are the AT-04a maps (same batch composition, AT-04a requires them bit-identical across runs); features are extracted again in both batchings | Same values as a fresh batch-4 pass | No |
+| V-6 | C4 (AT-06b) | Selection file `motion/at06b_selection_<fold>.json` holds the rule, the pairs with U and the SHA-256 of each scenario's status array; its own hash is in the phase A record. Images are fetched through `FrameGate.motion_image`, which returns a bare array (never a detector batch) | "Written to the record with its hash before any image is read" | No |
+| V-7 | C4 (AT-06b) | The zero-shift MSE (reported, not gated) uses the same columns as the U / -U comparison | Comparable numbers | No (not gated) |
+| V-8 | Section 5 step 3 | The Stage 1 suite now contains the Stage 2 CPU tests, so the Stage 1 notebook also installs `requirements-stage2.txt` (faiss); a skipped test would make Stage 1 FAIL | Unchanged pass rule | No |
+| V-9 | Section 5 step 1 | `pilot_v1_2_1.yaml` still loads under its own schema (the DL-0012 record stays reproducible). The M1 calibration of DL-0017 ran before `pilot_v1_2_2.yaml` existed, so `result.json` records the v1.2.1 config hash; the motion constants it used are identical in both files (tested) | Record of what was run | No |
+| V-10 | Stage 2 runner | Preconditions now also require: the v1.2.2 config and amendment hash, a pinned v1.2.2 Stage 1 record made with the same config, and its bank CSV equal to the DL-0012 bank | Section 5 steps 3 and 4 | No |
 
 ## Note on commit identifiers
 

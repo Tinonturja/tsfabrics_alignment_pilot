@@ -7,7 +7,7 @@ import os
 import yaml
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-DEFAULT = os.path.join(REPO, "configs", "pilot_v1_2_1.yaml")
+DEFAULT = os.path.join(REPO, "configs", "pilot_v1_2_2.yaml")
 
 REQUIRED = {
     "spec": {"preregistration_sha256", "amendment_v1_2_1_sha256"},
@@ -34,6 +34,12 @@ REQUIRED = {
                       "transient", "min_path"},
 }
 FOLD_KEYS = {"index", "test", "expected", "validation", "bank_groups", "bank_quota", "tau_r_groups"}
+# Amendment v1.2.2 (DL-0016): a config that declares its hash must also carry these keys. pilot_v1_2_1.yaml still
+# loads under the v1.2.1 schema, so the Stage 1 record of DL-0012 stays reproducible.
+V122_EXTRA = {"spec": {"amendment_v1_2_2_sha256"}, "motion": {"rule"},
+              "stage2_acceptance": {"at03_rel", "at03_fallback_n", "at04b_frames", "at04b_features_rel",
+                                    "at04b_maps_rel", "at06b_scenarios", "at06b_pairs", "at06b_min_holding"}}
+MOTION_RULES = ("frozen",)          # M1 failed its calibration (DL-0017) and is not wired into any stage
 
 
 class ConfigError(ValueError):
@@ -51,11 +57,16 @@ def file_sha256(path):
 def load(path=DEFAULT):
     with open(path) as f:
         cfg = yaml.safe_load(f)
-    unknown = set(cfg) - set(REQUIRED)
-    missing = set(REQUIRED) - set(cfg)
+    required = dict(REQUIRED)
+    v122 = "amendment_v1_2_2_sha256" in (cfg.get("spec") or {})
+    if v122:
+        for sec, extra in V122_EXTRA.items():
+            required[sec] = (required.get(sec) or set()) | extra
+    unknown = set(cfg) - set(required)
+    missing = set(required) - set(cfg)
     if unknown or missing:
         raise ConfigError(f"top-level keys: unknown {sorted(unknown)}, missing {sorted(missing)}")
-    for sec, keys in REQUIRED.items():
+    for sec, keys in required.items():
         if keys is None:
             continue
         got = set(cfg[sec])
@@ -66,6 +77,9 @@ def load(path=DEFAULT):
             raise ConfigError(f"fold {name}: keys {sorted(set(fold) ^ FOLD_KEYS)} differ")
     if cfg["chance"]["offset_support"] != "full_cyclic_group":
         raise ConfigError("v1.2.1 requires chance.offset_support = full_cyclic_group")
+    if v122 and cfg["motion"]["rule"] not in MOTION_RULES:
+        raise ConfigError(f"motion.rule must be one of {MOTION_RULES} (DL-0017)")
+    cfg["_version"] = "v1.2.2" if v122 else "v1.2.1"
     cfg["_path"] = os.path.abspath(path)
     cfg["_sha256"] = file_sha256(path)
     return cfg

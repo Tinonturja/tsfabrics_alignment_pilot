@@ -91,6 +91,8 @@ def test_config_integrity(tmp_path):
     assert CFG["spec"]["preregistration_sha256"] == C.file_sha256(os.path.join(REPO, "PREREGISTRATION.md"))
     assert CFG["spec"]["amendment_v1_2_1_sha256"] == C.file_sha256(
         os.path.join(REPO, "PREREGISTRATION_AMENDMENT_v1.2.1.md"))
+    assert CFG["_version"] == "v1.2.2" and CFG["spec"]["amendment_v1_2_2_sha256"] == C.file_sha256(
+        os.path.join(REPO, "docs", "stage2", "AMENDMENT_v1.2.2_PROTOCOL.md"))
     bad = tmp_path / "bad.yaml"
     bad.write_text(open(C.DEFAULT).read().replace("  merge_gap: 2\n", "  merge_gap: 2\n  surprise: 1\n"))
     with pytest.raises(C.ConfigError):

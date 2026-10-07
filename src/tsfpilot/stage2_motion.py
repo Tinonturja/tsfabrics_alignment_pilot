@@ -52,8 +52,16 @@ def raw_motion(root, cfg, out_dir, workers=2, max_frames=None):
     return raw, reads
 
 
+def check_rule(cfg):
+    """v1.2.2: the frozen section 7 rule is the only one in force (M1 not adopted, DL-0017)."""
+    rule = cfg["motion"].get("rule", "frozen")
+    if rule != "frozen":
+        raise ValueError(f"motion rule {rule!r} is not implemented in Stage 2 (DL-0017)")
+
+
 def tau_r_record(raw, cfg, fold):
     """tau_r for one fold (section 7 item 3) with the counts that justify it."""
+    check_rule(cfg)
     mcfg = cfg["motion"]
     names = access.tau_r_scenarios(cfg, fold)
     tau = M.tau_r([raw[s] for s in names], mcfg)
@@ -88,6 +96,7 @@ def frames_without_estimate(raw):
 
 def scenario_motion(raw_s, tau, cfg):
     """Statuses, dx, k_t, K_t and oracle dx of one scenario under a fold's tau_r (sections 7 and 8)."""
+    check_rule(cfg)
     dx_raw, dy_raw, r_raw, has = raw_s
     status, dx = M.statuses(dx_raw, dy_raw, r_raw, has, tau, cfg["motion"])
     k, K = k_series(dx, status, cfg["windows"])

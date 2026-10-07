@@ -35,6 +35,9 @@ AT_MAP = {
     "test_bootstrap": ["section 18"],
     "test_passes_bank_config": ["sections 4, 11, 18; config"],
     "test_reference": ["reference self-tests"],
+    "test_v122_motion_m1": ["v1.2.2 C1 (M1, not adopted: DL-0017)"],
+    "test_v122_calibration_generator": ["v1.2.2 section 4"],
+    "test_v122_acceptance": ["v1.2.2 C2 to C4"],
 }
 NON_BLOCKING = {"test_at17_c6"}           # AT-17 failure: C6 is not reported, Stage 3 is not blocked
 
@@ -79,12 +82,16 @@ def main():
     cfg = C.load()
     globs = ["src/tsfpilot/*.py", "tests/*.py", "tests/fixtures/*.py", "data/frozen/*", "reference/*.py",
              "reference/README.txt", "calibration/c0b/*.py", "calibration/c0b/*.md", "calibration/c0b/*.sha256",
-             "calibration/c0b/HASHES.txt", "calibration/c0b/results/*.csv", "scripts/*.py", "notebooks/*.ipynb"]
-    hashed = sorted({p for g in globs for p in glob.glob(os.path.join(REPO, g))} |
+             "calibration/c0b/HASHES.txt", "calibration/c0b/results/*.csv", "calibration/v1_2_2_m1/*", "scripts/*.py",
+             "notebooks/*.ipynb"]
+    hashed = sorted({p for g in globs for p in glob.glob(os.path.join(REPO, g)) if os.path.isfile(p)} |
                     {os.path.join(REPO, p) for p in ("PREREGISTRATION.md", "PREREGISTRATION_AMENDMENT_v1.2.1.md",
-                                                     "configs/pilot_v1_2_1.yaml", "requirements.txt", "pyproject.toml")})
+                                                     "docs/stage2/AMENDMENT_v1.2.2_PROTOCOL.md",
+                                                     "configs/pilot_v1_2_1.yaml", "configs/pilot_v1_2_2.yaml",
+                                                     "requirements.txt", "requirements-stage2.txt", "pyproject.toml")})
     report = {
-        "stage": 1, "spec": "Research Gate v1.2 + v1.2.1", "started_utc": t0.isoformat(),
+        "stage": 1, "spec": f"Research Gate v1.2 + v1.2.1{' + v1.2.2' if cfg.get('_version') == 'v1.2.2' else ''}",
+        "config_version": cfg.get("_version"), "started_utc": t0.isoformat(),
         "finished_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "result": result, "fast_mode": a.fast,
         "counts": {s: sum(t["status"] == s for t in tests) for s in ("passed", "failed", "skipped")},

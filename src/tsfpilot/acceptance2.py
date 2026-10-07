@@ -1,15 +1,22 @@
 """Stage 2 acceptance tests (section 23: AT-01, AT-02, AT-03, AT-04a, AT-04b, AT-06b; fixtures fixed in DL-0013).
+AT-03, AT-04b and AT-06b follow amendment v1.2.2, section 3 C2 to C4 (DL-0016).
 
 "rel" is max|a - b| / max|b| over all elements. Each function returns a JSON-ready record with "pass".
-Tolerances and fixture sizes are the section 23 values; tests/test_stage2_spec.py checks them against the text.
+Tolerances and fixture sizes are the section 23 and v1.2.2 values; tests check them against the texts and the
+configuration (stage2_acceptance).
 """
+import hashlib
+import json
+import math
+import os
+
 import numpy as np
 import torch
 
 from . import detector as D
+from . import motion as M
 from . import scoring as S
 from .variants import warp
-from .windows import shifts_at
 from .motion import RELIABLE
 
 AT01_FRAME = 1
@@ -19,8 +26,15 @@ AT03_FRAME = 1
 AT03_STRIDE = 4
 AT03_QUERIES = 2000
 AT03_REL = 1e-4
+AT03_FALLBACK_N = 1026             # v1.2.2 C3: 1,024 products plus the two additions combining the three terms
+U32 = 2.0 ** -24
+GAMMA = AT03_FALLBACK_N * U32 / (1 - AT03_FALLBACK_N * U32)
+F64_TERM = 1024 * 2.0 ** -53       # relative error allowance of the float64 reference
 AT04_FRAMES = tuple(range(1, 11))
-AT04B_REL = 1e-6
+AT04B_BATCH = 4                    # v1.2.2 C2: batches {1-4}, {5-8}, {9-10} against batch size 1
+AT04B_FEATURES_REL = 1e-6
+AT04B_MAPS_REL = 1e-4
+AT06B_SCENARIOS = ("T1_S164_I192_1", "T1_S164_I193_1")   # v1.2.2 C4, in this order
 AT06B_PAIRS = 200
 AT06B_MIN_HOLDING = 190            # 95% of 200
 
@@ -67,9 +81,27 @@ def at02(net, pc, gate, dcfg, device):
             "tolerance": AT02_REL, "pass": worst <= AT02_REL}
 
 
+def smallest_index_argmin(dist):
+    """Index of the first minimum (the smallest-index minimiser of v1.2.2 C3)."""
+    return int(torch.nonzero(dist == dist.min())[0, 0])
+
+
+def at03_fallback_bound(q64, b64, arg64, arg32, d64):
+    """v1.2.2 C3: E(b) = gamma_1026 (||q||^2 + ||b||^2 + 2 |q|.|b|) + 1,024 x 2^-53 x d64(q, b*), in float64.
+    Returns max(E(b*), E(b^)) per query. |q|.|b| is the inner product of the absolute values."""
+    qn = (q64 * q64).sum(dim=1)
+
+    def E(idx):
+        b = b64[idx]
+        return GAMMA * (qn + (b * b).sum(dim=1) + 2 * (q64.abs() * b.abs()).sum(dim=1)) + F64_TERM * d64
+    return torch.maximum(E(arg64), E(arg32))
+
+
 def at03(features_frame1, cs, fold, chunk=2000):
     """fp32 nearest squared distance against float64 brute force on 2,000 cells of validation frame 1.
-    Argmin agreement is reported, not gated. A faiss IndexFlatL2 cross-check is added when faiss is installed."""
+    Primary criterion (section 23): max|d32 - d64| / max d64 <= 1e-4. If it fails, the v1.2.2 C3 fallback decides:
+    every query must satisfy |d32 - d64| <= max(E(b*), E(b^)). Both results are recorded. Argmin agreement is
+    reported, not gated. A faiss IndexFlatL2 cross-check is added when faiss is installed."""
     q = features_frame1[::AT03_STRIDE]
     if len(q) != AT03_QUERIES:
         raise ValueError(f"expected {AT03_QUERIES} queries, got {len(q)}")
@@ -80,23 +112,33 @@ def at03(features_frame1, cs, fold, chunk=2000):
     arg64 = torch.empty(len(q), dtype=torch.int64, device=q.device)
     for i in range(len(q)):
         dist = ((b64 - q64[i]) ** 2).sum(dim=1)
-        d64[i], arg64[i] = dist.min(dim=0)
-    d32, d64 = d32.cpu().numpy(), d64.cpu().numpy()
-    err = float(np.abs(d32 - d64).max() / d64.max())
+        arg64[i] = smallest_index_argmin(dist)
+        d64[i] = dist[arg64[i]]
+    arg32 = arg32.to(q.device).long()
+    abs_err = (d32.double().to(q.device) - d64).abs()
+    bound = at03_fallback_bound(q64, b64, arg64, arg32, d64)
+    err = float(abs_err.max() / d64.max())
+    primary = err <= AT03_REL
+    fallback = bool((abs_err <= bound).all())
+    ratio = (abs_err / bound).cpu().numpy()
     qn = (q64 * q64).sum(dim=1).cpu().numpy()
+    d64n = d64.cpu().numpy()
     rec = {"test": "AT-03", "fold": fold, "frame": AT03_FRAME, "cells": f"0, {AT03_STRIDE}, ..., 7996",
-           "max_abs_err_over_max_d64": err, "tolerance": AT03_REL,
-           "argmin_agreement": float((arg32.cpu() == arg64.cpu()).double().mean()), "pass": err <= AT03_REL,
+           "max_abs_err_over_max_d64": err, "tolerance": AT03_REL, "primary_pass": bool(primary),
+           "fallback": {"rule": "v1.2.2 C3", "n": AT03_FALLBACK_N, "gamma": GAMMA, "pass": fallback,
+                        "queries_over_bound": int((abs_err > bound).sum()), "max_err_over_bound": float(ratio.max()),
+                        "applied": not primary},
+           "argmin_agreement": float((arg32 == arg64).double().mean()), "pass": bool(primary or fallback),
            # diagnostics: the fp32 expansion loses accuracy when ||q||^2 is large compared with the distances
            # (validation queries only: no statistic of the coreset, which holds bank features, is recorded)
-           "max_d64": float(d64.max()), "median_d64": float(np.median(d64)), "max_query_sqnorm": float(qn.max()),
-           "max_abs_err": float(np.abs(d32 - d64).max())}
+           "max_d64": float(d64n.max()), "median_d64": float(np.median(d64n)), "max_query_sqnorm": float(qn.max()),
+           "max_abs_err": float(abs_err.max())}
     try:
         import faiss
         index = faiss.IndexFlatL2(cs.vectors.shape[1])
         index.add(cs.vectors.cpu().numpy())
         dfa, _ = index.search(q.cpu().numpy(), 1)
-        rec["faiss_rel_to_ours"] = rel(d32, dfa[:, 0])
+        rec["faiss_rel_to_ours"] = rel(d32.cpu().numpy(), dfa[:, 0])
     except ImportError:
         rec["faiss_rel_to_ours"] = None
     return rec
@@ -121,30 +163,56 @@ def at04a(net, gate, coresets, dcfg, device):
             "bit_identical": per, "pass": all(per.values())}, first
 
 
+def batches(frames, size):
+    return [list(frames[a:a + size]) for a in range(0, len(frames), size)]
+
+
+def at04b_verdict(features_1, features_4, maps_1, maps_4):
+    """v1.2.2 C2: both parts required. features_*: arrays over frames 1 to 10; maps_*: {(fold, seed): array}."""
+    rf = rel(features_1, features_4)
+    per = {f"{k[0]} seed {k[1]}": rel(maps_1[k], maps_4[k]) for k in maps_4}
+    return {"rel_features": rf, "features_tolerance": AT04B_FEATURES_REL, "rel_maps": per,
+            "maps_tolerance": AT04B_MAPS_REL,
+            "pass": bool(rf <= AT04B_FEATURES_REL and max(per.values()) <= AT04B_MAPS_REL)}
+
+
 def at04b(net, gate, coresets, dcfg, device, maps_batch4):
-    single = maps_for(net, gate, AT04_FRAMES, 1, coresets, dcfg, device)
-    per = {f"{k[0]} seed {k[1]}": rel(single[k], maps_batch4[k]) for k in coresets}
-    f1 = D.extract(net, gate.batch("validation", None, [(gate.val_scenario, f) for f in AT04_FRAMES[:4]]).images,
-                   dcfg, device)
-    f2 = torch.cat([D.extract(net, gate.batch("validation", None, [(gate.val_scenario, f)]).images, dcfg, device)
-                    for f in AT04_FRAMES[:4]])
-    return {"test": "AT-04b", "frames": list(AT04_FRAMES), "rel_maps": per,
-            "rel_features_frames_1_to_4": rel(f2.cpu().numpy(), f1.cpu().numpy()),
-            "tolerance": AT04B_REL, "pass": max(per.values()) <= AT04B_REL}
+    """Validation frames 1 to 10, batch size 1 against batch size 4 ({1-4}, {5-8}, {9-10}). maps_batch4 are the
+    AT-04a maps, computed with the same batch composition."""
+    if dcfg["batch_size"] != AT04B_BATCH:
+        raise ValueError(f"AT-04b compares against batch size {AT04B_BATCH}, config has {dcfg['batch_size']}")
+
+    def feats(size):
+        out = []
+        for keys in batches(AT04_FRAMES, size):
+            b = gate.batch("validation", None, [(gate.val_scenario, f) for f in keys])
+            out.append(D.extract(net, b.images, dcfg, device).cpu().numpy())
+        return np.concatenate(out)
+    f4 = feats(AT04B_BATCH)
+    f1 = feats(1)
+    maps_1 = maps_for(net, gate, AT04_FRAMES, 1, coresets, dcfg, device)
+    rec = at04b_verdict(f1, f4, maps_1, maps_batch4)
+    return dict({"test": "AT-04b", "frames": list(AT04_FRAMES), "batches": batches(AT04_FRAMES, AT04B_BATCH)}, **rec)
 
 
-def at06b_frames(status):
-    """DL-0013: the earliest run of 200 consecutive reliable frames; if none exists, the first 200 reliable frames
-    in time order. Returns (0-based frame indices t, each meaning the pair (t - 1, t), rule used)."""
-    rel_idx = np.flatnonzero(np.asarray(status) == RELIABLE)
-    run = 0
-    for t in range(len(status)):
-        run = run + 1 if status[t] == RELIABLE else 0
-        if run == AT06B_PAIRS:
-            return list(range(t - AT06B_PAIRS + 1, t + 1)), "consecutive run"
-    if len(rel_idx) >= AT06B_PAIRS:
-        return [int(t) for t in rel_idx[:AT06B_PAIRS]], "first reliable frames (no run of 200)"
-    return None, f"only {len(rel_idx)} reliable frames"
+def at06b_select(statuses):
+    """v1.2.2 C4, from statuses alone. statuses: [(scenario, status array)] in the order I192, I193.
+    1. the earliest run of 200 consecutive reliable frames in I192; 2. else in I193 (runs never cross scenarios);
+    3. else the first 200 reliable frames of I192 in time order, then of I193; 4. else None (AT-06b FAIL).
+    Returns ([(scenario, t)], rule) with t the 1-based reliable frame of the pair (t - 1, t)."""
+    for scen, st in statuses:
+        run = 0
+        for i in range(len(st)):
+            run = run + 1 if st[i] == RELIABLE else 0
+            if run == AT06B_PAIRS:
+                return [(scen, j + 1) for j in range(i - AT06B_PAIRS + 1, i + 1)], f"consecutive run in {scen}"
+    chosen = []
+    for scen, st in statuses:
+        for i in np.flatnonzero(np.asarray(st) == RELIABLE):
+            chosen.append((scen, int(i) + 1))
+            if len(chosen) == AT06B_PAIRS:
+                return chosen, "first reliable frames (no run of 200)"
+    return None, f"only {len(chosen)} reliable frames in {', '.join(s for s, _ in statuses)}"
 
 
 def block_mean(img_u8):
@@ -152,10 +220,15 @@ def block_mean(img_u8):
     return np.asarray(img_u8, np.float64).reshape(80, 8, 100, 8).mean(axis=(1, 3))
 
 
+def _both_valid(ncols, U):
+    cols = np.arange(ncols)
+    return (cols + U >= 0) & (cols + U <= ncols - 1) & (cols - U >= 0) & (cols - U <= ncols - 1)
+
+
 def warp_prefers_forward(prev80, cur80, U):
-    """MSE(img_t, W(img_(t-1), U)) < MSE(img_t, W(img_(t-1), -U)) on the columns valid for both shifts."""
-    cols = np.arange(prev80.shape[1])
-    both = (cols + U >= 0) & (cols + U <= 99) & (cols - U >= 0) & (cols - U <= 99)
+    """MSE(img_t, W(img_(t-1), U)) < MSE(img_t, W(img_(t-1), -U)) on the columns valid for both shifts.
+    No column valid for both: the pair does not hold."""
+    both = _both_valid(prev80.shape[1], U)
     if not both.any():
         return False, np.nan, np.nan
     fwd = warp(prev80, U, 0.0)[:, both]
@@ -166,26 +239,65 @@ def warp_prefers_forward(prev80, cur80, U):
     return mse_f < mse_r, mse_f, mse_r
 
 
-def at06b(gate, vmotion, fold, tau):
+def mse_zero_shift(prev80, cur80, U):
+    """Reported, not gated: MSE between the two frames without warping, on the same columns as the comparison."""
+    both = _both_valid(prev80.shape[1], U)
+    if not both.any():
+        return float("nan")
+    return float(np.mean((cur80[:, both] - prev80[:, both]) ** 2))
+
+
+def at06b_shift(dx_t):
+    """U(t, 1) = floor(-dx_t / 8 + 0.5)."""
+    return int(math.floor(-float(dx_t) / 8.0 + 0.5))
+
+
+def _sha256_array(a):
+    return hashlib.sha256(np.ascontiguousarray(a).tobytes()).hexdigest()
+
+
+def at06b(gate, raw, fold, tau, mcfg, out_dir):
+    """v1.2.2 C4. raw: {scenario: (dx, dy, r, has_est)} from phase A. The selection is computed from statuses
+    alone and written, with its hash, to out_dir before any image is read. Images come through the gate under
+    purpose 'motion' and never reach the detector."""
     if tau is None:
         return {"test": "AT-06b", "fold": fold, "applicable": False, "pass": None,
                 "note": "tau_r undefined: the fold is motion-invalid and V4 always falls back to V2 (DL-0013)"}
-    frames, rule = at06b_frames(vmotion["status"])
-    if frames is None:
-        return {"test": "AT-06b", "fold": fold, "applicable": True, "pass": False, "rule": rule}
-    u = np.asarray(vmotion["dx"], np.float64) / 8.0
-    holding, rows = 0, []
+    statuses, dxs = [], {}
+    for scen in AT06B_SCENARIOS:
+        st, _ = M.statuses(*raw[scen], tau, mcfg)
+        statuses.append((scen, st))
+        dxs[scen] = np.asarray(raw[scen][0], np.float64)
+    chosen, rule = at06b_select(statuses)
+    selection = {"fold": fold, "tau_r": tau, "motion_rule": mcfg.get("rule", "frozen"), "rule": rule,
+                 "scenarios": list(AT06B_SCENARIOS),
+                 "status_sha256": {s: _sha256_array(st) for s, st in statuses},
+                 "reliable_frames": {s: int(np.sum(st == RELIABLE)) for s, st in statuses},
+                 "pairs": None if chosen is None else [[s, t, at06b_shift(dxs[s][t - 1])] for s, t in chosen]}
+    os.makedirs(out_dir, exist_ok=True)
+    path = os.path.join(out_dir, f"at06b_selection_{fold}.json")
+    with open(path, "w") as f:
+        json.dump(selection, f, indent=1)
+    with open(path, "rb") as f:
+        sel_sha = hashlib.sha256(f.read()).hexdigest()
+    base = {"test": "AT-06b", "fold": fold, "applicable": True, "rule": rule, "selection_file": os.path.basename(path),
+            "selection_sha256": sel_sha, "required": AT06B_MIN_HOLDING}
+    if chosen is None:
+        return dict(base, holding=0, pairs=[], **{"pass": False})
     cache = {}
 
-    def img(frame):
-        if frame not in cache:
-            cache[frame] = block_mean(gate.validation_image(frame))
-        return cache[frame]
-    for t in frames:
-        U = shifts_at(u, t, 2)[1]
-        ok, mf, mr = warp_prefers_forward(img(t), img(t + 1), U)          # 0-based t is frame t + 1
+    def img(scen, frame):
+        if (scen, frame) not in cache:
+            cache[(scen, frame)] = block_mean(gate.motion_image(fold, scen, frame))
+        return cache[(scen, frame)]
+    holding, rows = 0, []
+    for scen, t, U in selection["pairs"]:
+        prev, cur = img(scen, t - 1), img(scen, t)
+        ok, mf, mr = warp_prefers_forward(prev, cur, U)
         holding += int(ok)
-        rows.append([t + 1, int(U), mf, mr, bool(ok)])
-    return {"test": "AT-06b", "fold": fold, "applicable": True, "rule": rule, "frames": [frames[0] + 1,
-            frames[-1] + 1], "holding": holding, "required": AT06B_MIN_HOLDING, "pairs": rows,
-            "pass": holding >= AT06B_MIN_HOLDING}
+        rows.append([scen, t, U, mf, mr, mse_zero_shift(prev, cur, U), bool(ok)])
+        if len(cache) > 4:
+            cache.pop(next(iter(cache)))
+    return dict(base, holding=holding, pairs=rows, columns=["scenario", "t", "U", "mse_U", "mse_minus_U",
+                                                            "mse_zero_shift", "holds"],
+                **{"pass": holding >= AT06B_MIN_HOLDING})

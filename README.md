@@ -5,9 +5,17 @@ normal-only (PatchCore-derived) anomaly maps after aligning them to the measured
 alarms and missed defects, compared with frame scores (V0), score smoothing (V1), unaligned map averaging (V2) and
 two controls that break only the correspondence (reversed alignment, lag permutation).
 
-The specification is `PREREGISTRATION.md` (Research Gate v1.2) plus `PREREGISTRATION_AMENDMENT_v1.2.1.md`.
-Every module in `src/tsfpilot/` names the section it implements. If a behaviour is not in those two documents,
-it is not in the code.
+> **Outcome: stopped at Stage 2 (validation), as the protocol requires.** A motion-direction check failed (112 of
+> 200 frame pairs, 190 required) because the validation fabric's pattern repeats about every 85 px while the fabric
+> moves about 86 px per frame. Stage 3 never ran: no test label, anomaly map, score or metric was computed, so there
+> is **no result about the research question**. Read the [technical note](docs/TECHNICAL_NOTE.md) for the
+> two-page account, or the [final status report](docs/stage2/STAGE2_RERUN_AND_PILOT_STATUS.md) for the full record.
+
+<p align="center"><img src="docs/figures/pilot_gates.svg" width="760" alt="Five gates: freeze the specification, calibrate on synthetic data, Stage 1 CPU tests (passed), Stage 2 GPU validation (failed at phase A), Stage 3 test (never run). A failure at any gate stops the pilot and is recorded; no re-tuning."></p>
+
+The specification is `PREREGISTRATION.md` (Research Gate v1.2), `PREREGISTRATION_AMENDMENT_v1.2.1.md` and
+`docs/stage2/AMENDMENT_v1.2.2_PROTOCOL.md`. Every module in `src/tsfpilot/` names the section it implements. If a
+behaviour is not in those documents, it is not in the code.
 
 ## Status
 
@@ -15,14 +23,17 @@ it is not in the code.
 |---|---|---|
 | Stage 1 | Synthetic data, reference scripts, frozen CSVs, label files. CPU. No images | **PASS** on Kaggle, 2026-10-04: 53 passed, 0 failed, 0 skipped (record in `audit/stage1_kaggle/`, decision log DL-0012) |
 | Stage 2 | Bank and validation frames only: features, coresets, validation constants, tau_r. GPU | Run 1 failed at phase A (DL-0015). Amendment v1.2.2 adopted (DL-0016); its motion candidate failed calibration (DL-0017); C2 to C4 implemented (DL-0018). Stage 1 v1.2.2 PASS (DL-0022). Stage 2 rerun FAIL on AT-06b (DL-0024): **pilot stopped at Stage 2**; see `docs/stage2/STAGE2_RERUN_AND_PILOT_STATUS.md` |
-| Stage 3 | One locked run on the test folds | Not yet implemented |
+| Stage 3 | One locked run on the test folds | **Not run.** Stopped by the v1.2.2 stop clause; test scenarios remain unscored (DL-0023, DL-0024) |
 
 ## Layout
 
 ```text
 PREREGISTRATION.md                 Research Gate v1.2 (frozen; SHA-256 recorded in the config)
 PREREGISTRATION_AMENDMENT_v1.2.1.md  C0b offset amendment (adopted 2026-10-01)
-configs/pilot_v1_2_1.yaml          every constant; the loader refuses unknown or missing keys
+configs/pilot_v1_2_2.yaml          every constant (default config); the loader refuses unknown or missing keys
+configs/pilot_v1_2_1.yaml          the v1.2.1 configuration, kept for the record
+calibration/v1_2_2_m1/             M1 motion-candidate calibration (FAIL)
+audit/                             Stage 1 and Stage 2 records, including failed runs (*_FAIL)
 data/frozen/                       passes and tracks, condition clusters, bank audit, forensic summary
 reference/                         frozen v1.2 reference scripts (never imported by src/)
 calibration/c0b/                   C0b calibration package: protocol, addendum, code, results
@@ -33,7 +44,8 @@ scripts/run_stage2.py              runs Stage 2 in resumable phases and writes s
 notebooks/stage1_kaggle.ipynb      thin Kaggle launcher (Stage 1)
 notebooks/stage2_kaggle.ipynb      thin Kaggle launcher (Stage 2, GPU)
 third_party/patchcore/             official PatchCore files, byte-for-byte at fcaa92f (blob ids tested)
-docs/stage2/                       Stage 2 implementation audit and walkthrough
+docs/TECHNICAL_NOTE.md             two-page account of the pilot and why it stopped
+docs/stage2/                       Stage 2 audit, walkthrough, amendment v1.2.2, diagnosis and final status
 docs/decisions/DECISION_LOG.md     dated decisions, including implementation choices
 docs/UNRESOLVED.md                 open questions
 docs/literature/                   novelty audit evidence

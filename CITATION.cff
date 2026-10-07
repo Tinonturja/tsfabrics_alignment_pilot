@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you refer to this pilot, please cite it as below. It reports a stopped preregistered pilot, not a result about the research question."
+title: "TSFabrics alignment pilot: a preregistered test of motion-aligned anomaly detection on knitted-fabric video"
+type: software
+authors:
+  - family-names: Majumder
+    given-names: Tinon Turja
+    orcid: "https://orcid.org/0009-0000-0684-398X"
+    email: tinonturja@gmail.com
+repository-code: "https://github.com/Tinonturja/tsfabrics_alignment_pilot"
+date-released: "2026-10-07"
+keywords:
+  - anomaly detection
+  - computer vision
+  - industrial inspection
+  - textile defect detection
+  - preregistration
+  - reproducibility

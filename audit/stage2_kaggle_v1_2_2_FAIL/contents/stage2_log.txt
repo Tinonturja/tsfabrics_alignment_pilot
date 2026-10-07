@@ -1,0 +1,7 @@
+[2026-10-07T08:24:05+00:00] phase 0 ...
+[2026-10-07T08:24:23+00:00] phase 0: pass
+[2026-10-07T08:24:23+00:00] phase A ...
+[2026-10-07T08:41:13+00:00] phase A: FAIL
+Stage 2 FAIL  {'AT-06b A-G1': False, 'AT-06b A-G4': None}
+report /kaggle/working/stage2_out/stage2_report.json  sha256 1164258f2137a713c430e0ddcfe58a9bccbdbe5d65f8face68b864ba58a2bcad
+files fingerprint cb17b0cae1723f03366cbb686a4f2597788d867926be7ff008bf5d69d5f6fe10

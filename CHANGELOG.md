@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.0 (2026-10-07): Stage 1 and Stage 2 reruns under v1.2.2; pilot stopped at Stage 2
+
+- Stage 1 (v1.2.2) run 1 failed on an over-strict unit test (DL-0020); the test was replaced (DL-0021) and Stage 1
+  passed on Kaggle (DL-0022). Decision: rerun Stage 2, do not run Stage 3 (DL-0023).
+- Stage 2 rerun failed at phase A: AT-06b A-G1 112 of 200 (DL-0024). Under v1.2.2 section 5 the pilot is stopped at
+  Stage 2. Final status in `docs/stage2/STAGE2_RERUN_AND_PILOT_STATUS.md`.
+
 ## 0.3.0 (2026-10-07): Stage 2 run 1 diagnosis and amendment v1.2.2
 
 - Stage 2 run 1 on Kaggle failed at phase A (DL-0015); diagnosis in `docs/stage2/STAGE2_RUN1_DIAGNOSIS.md`.

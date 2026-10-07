@@ -17,7 +17,7 @@ Pooled over 200 replicates per family. "Clean" excludes warm-up, event frames an
 | F5 alternating + failures | 95.73% / 95.87% | 99.73% / 96.52% | 96.83% / 96.86% | 96.02% / 95.71% |
 | F6 slow + drops | 99.99% / 99.99% | 99.15% / 98.25% | 100.00% / 100.00% | 100.00% / 99.45% |
 
-Failed criteria (18 checked, 16 pass):
+Failed criteria (16 checked, 14 pass; corrected 2026-10-07, DL-0019):
 
 - Criterion 1, F6, item 4: 98.25% of clean frames reliable, limit 99%.
 - Criterion 3, F4, item 4: M1's clean-frame reliability is 3.01 percentage points below the frozen rule's, limit 1.

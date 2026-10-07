@@ -148,8 +148,10 @@ On Kaggle (the record): GPU accelerator, Internet on, attach the TSFabrics datas
 ## Dataset and citation
 
 This work uses TSFabrics: Ni et al., *Scientific Data* (2026), DOI
-[10.1038/s41597-026-06748-9](https://doi.org/10.1038/s41597-026-06748-9). The dataset is not redistributed here;
-obtain it from its authors' release. To cite this repository, use the **Cite this repository** button
+[10.1038/s41597-026-06748-9](https://doi.org/10.1038/s41597-026-06748-9). The dataset is released by its authors
+under CC BY 4.0 on figshare ([10.6084/m9.figshare.29573381](https://doi.org/10.6084/m9.figshare.29573381)). No
+images or masks are redistributed here; the tables in `data/frozen/` are derived from the dataset's labels and file
+listing and are shared with this attribution. To cite this repository, use the **Cite this repository** button
 (`CITATION.cff`).
 
 ## Author
